@@ -1,21 +1,28 @@
-from fastapi import FastAPI, HTTPException
-import pandas as pd
-import os
-from src.simulator.api_simulator import OficialApiSimulator
+from fastapi import FastAPI, HTTPException, Query
+from src.services.tournament_service import TournamentService
 
 app = FastAPI(title="PowerRev Tournament API", version="1.0")
-
-# Caminho simulado para o CSV que a Maria Clara mandou
-CSV_PATH = os.path.join("..", "database", "torneio-setembro.csv")
+tournament_service = TournamentService()
 
 @app.get("/")
 def read_root():
-    return {"message": "Bem-vindo à API de Gestão de Torneios da PowerRev!"}
+    return {"message": "API de Gestão de Torneios operando com sucesso!"}
 
-@app.post("/api/verificar-partidas")
-def verificar_partidas():
-    """
-    Simula a leitura do CSV da Maria Clara e a conferência no site oficial.
-    """
-    # Aqui faremos a leitura do CSV e a aplicação das regras
-    return {"status": "Processo de verificação iniciado"}
+@app.get("/api/classificacao")
+def obter_classificacao():
+    try:
+        classificacao = tournament_service.calcular_vitorias_por_time()
+        return {"classificacao": classificacao}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/api/premios")
+def calcular_premios(
+    premio_total: float = Query(10000.00, description="Valor total do prêmio em dinheiro"),
+    criterio: str = Query("minutos", description="Critério de rateio: 'minutos' ou 'kills'")
+):
+    try:
+        resultado = tournament_service.calcular_rateio_premios(premio_total, criterio)
+        return resultado
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
