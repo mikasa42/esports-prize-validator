@@ -8,7 +8,7 @@ function App() {
   const [statusVerificacao, setStatusVerificacao] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const API_URL = "http://localhost:8000";
+  const API_URL = "http://172.17.0.1:8000";
 
   const carregarDados = async () => {
     try {
