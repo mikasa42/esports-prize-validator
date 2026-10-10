@@ -16,5 +16,14 @@ services:
       - mysql_data:/var/lib/mysql
       - ./database:/docker-entrypoint-initdb.d # Executa automaticamente scripts .sql na primeira inicialização!
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: tournament-frontend
+    ports:
+      - "3000:80"
+    restart: always
+
 volumes:
   mysql_data:
