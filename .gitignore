@@ -2,6 +2,9 @@
 .venv/
 # Dependências do Node
 frontend/node_modules/
+node_modules/
+__pycache__/
+*.py[cod]
 
 # Logs de build e npm
 npm-debug.log*

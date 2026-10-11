@@ -25,27 +25,58 @@ O **Tournament Hub** automatiza esse fluxo ponta a ponta:
 ## 🚀 Como Rodar o Projeto
 
 ### Pré-requisitos
-* Docker e Docker Compose instalados na máquina.
-* Python 3.10+
-* Node.js
 
-### Passo a Passo
+* Python 3.10 a 3.12, com suporte a `venv`.
+* Node.js 18+ e npm 9+.
+* Bash para os scripts de desenvolvimento.
+* Docker e Docker Compose para o MySQL opcional.
 
-1. **Subir o Banco de Dados (MySQL):**
-   Na raiz do repositório, execute:
-   ```bash
-   docker compose up -d´´´
-2. **Configurar e Executar o Backend (FastAPI):**
-Na pasta backend, execute:
-    ```bash
-    cd backend
-    python -m venv .venv
-    source .venv/bin/activate  # No Windows (PowerShell): .venv\Scripts\Activate.ps1 | No Git Bash: source .venv/Scripts/activate
-    pip install -r requirements.txt
-    uvicorn src.main:app --reload ´´´
-3. **Configurar e Executar o Frontend (React):**
-Em um novo terminal, na pasta frontend, execute:
-    ```bash
-    cd frontend
-    npm install
-    npm start ´´´
+### Ambiente de desenvolvimento unificado
+
+Na raiz do projeto, instale todas as dependências:
+
+```bash
+npm run setup
+source .venv/bin/activate
+npm run dev
+```
+
+O setup cria a `.venv` na raiz e instala as bibliotecas de
+`backend/requirements.txt`. Também instala as dependências do frontend com
+`npm ci`, usando `frontend/package-lock.json` e a opção `--legacy-peer-deps`
+utilizada pelo projeto. Python e Node mantêm suas dependências em diretórios
+próprios (`.venv/` e `frontend/node_modules/`), com comandos centralizados na
+raiz. A antiga `backend/.venv` não é utilizada por esses comandos.
+
+`npm run dev` inicia a API em `http://localhost:8000` e o frontend em
+`http://localhost:3000`. Use Ctrl+C para encerrar os processos. A ativação da
+`.venv` é útil para comandos Python manuais; os scripts já usam seu interpretador
+explicitamente. No editor, selecione `.venv/bin/python` como interpretador.
+
+Também é possível executar cada serviço em um terminal separado:
+
+```bash
+npm run dev:backend
+npm run dev:frontend
+```
+
+Para conferir dependências Python ou gerar o build do frontend:
+
+```bash
+npm run check:backend
+npm run build:frontend
+```
+
+O NumPy está fixado na série 1.26 para compatibilidade com Pandas 2.2.1.
+Ao adicionar bibliotecas, atualize `backend/requirements.txt` ou o manifesto e
+lockfile do frontend, conforme a linguagem, e execute novamente o setup.
+
+Para iniciar apenas o banco de dados:
+
+```bash
+docker compose up -d db
+```
+
+O backend atual lê o CSV em `database/torneio-setembro.csv` e ainda não usa o
+MySQL. A comunicação do painel com a API ainda depende de ajustar o endereço
+fixo em `frontend/src/App.js` e configurar CORS no backend.
