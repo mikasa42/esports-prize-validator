@@ -1,8 +1,21 @@
+import json
+import os
+from typing import Literal
+
 from fastapi import FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import update
+from src.database import engine, partidas
 from src.services.tournament_service import TournamentService
 from src.simulator.api_simulator import OficialApiSimulator
 
 app = FastAPI(title="PowerRev Tournament API", version="1.0")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=os.environ.get("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000").split(","),
+    allow_methods=["GET", "POST"],
+    allow_headers=["*"],
+)
 tournament_service = TournamentService()
 
 @app.get("/")
@@ -10,37 +23,38 @@ def read_root():
     return {"message": "API de Gestão de Torneios operando com sucesso!"}
 
 @app.get("/api/classificacao")
-def obter_classificacao():
+def obter_classificacao(torneio_id: int = Query(1, ge=1)):
     try:
-        classificacao = tournament_service.calcular_vitorias_por_time()
+        classificacao = tournament_service.calcular_vitorias_por_time(torneio_id)
         return {"classificacao": classificacao}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/api/premios")
 def calcular_premios(
-    premio_total: float = Query(10000.00, description="Valor total do prêmio em dinheiro"),
-    criterio: str = Query("minutos", description="Critério de rateio: 'minutos' ou 'kills'")
+    premio_total: float = Query(10000.00, ge=0, description="Valor total do prêmio em dinheiro"),
+    criterio: Literal["minutos", "kills"] = Query("minutos", description="Critério de rateio: 'minutos' ou 'kills'"),
+    torneio_id: int = Query(1, ge=1)
 ):
     try:
-        resultado = tournament_service.calcular_rateio_premios(premio_total, criterio)
+        resultado = tournament_service.calcular_rateio_premios(premio_total, criterio, torneio_id)
         return resultado
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/verificar-partidas")
-def verificar_partidas():
+def verificar_partidas(torneio_id: int = Query(1, ge=1)):
     """
-    Lê o CSV da Maria Clara, extrai os IDs de partidas únicos e valida cada um 
+    Consulta as partidas importadas no banco, extrai os IDs de partidas únicos e valida cada um
     contra o simulador da API oficial (tratando lentidão e instabilidades).
     """
     try:
-        df = tournament_service.carregar_dados()
+        df = tournament_service.carregar_dados(torneio_id)
         match_ids = df['ID Partida'].unique().tolist()
-        
+
         resultados_verificacao = []
         erros_encontrados = []
-        
+
         for match_id in match_ids:
             try:
                 res = OficialApiSimulator.consultar_partida(match_id)
@@ -51,7 +65,16 @@ def verificar_partidas():
                     "status": "divergente_ou_erro",
                     "detalhe": str(err)
                 })
-                
+
+        with engine.begin() as conn:
+            for resultado in resultados_verificacao + erros_encontrados:
+                conn.execute(update(partidas).where(
+                    partidas.c.torneio_id == torneio_id,
+                    partidas.c.match_id_externo == resultado['match_id_externo'],
+                ).values(
+                    status_verificacao='verificado' if resultado.get('verificado') else 'erro_api',
+                    detalhes_verificacao=json.dumps(resultado, ensure_ascii=False),
+                ))
         return {
             "total_partidas_verificadas": len(match_ids),
             "sucessos": resultados_verificacao,

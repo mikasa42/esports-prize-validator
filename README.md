@@ -37,6 +37,8 @@ Na raiz do projeto, instale todas as dependências:
 
 ```bash
 npm run setup
+docker compose up -d db
+npm run import:csv
 source .venv/bin/activate
 npm run dev
 ```
@@ -77,6 +79,24 @@ Para iniciar apenas o banco de dados:
 docker compose up -d db
 ```
 
-O backend atual lê o CSV em `database/torneio-setembro.csv` e ainda não usa o
-MySQL. A comunicação do painel com a API ainda depende de ajustar o endereço
-fixo em `frontend/src/App.js` e configurar CORS no backend.
+O CSV é colocado manualmente em `database/torneio-setembro.csv`. Execute
+`npm run import:csv` para validar e carregar os dados no MySQL. Para outro arquivo:
+
+```bash
+npm run import:csv -- /caminho/arquivo.csv --nome "Meu torneio"
+```
+
+A recarga substitui as partidas, participantes e verificações do torneio com o
+mesmo nome, sem duplicar registros. A operação é transacional: se falhar,
+os dados anteriores são preservados. IDs externos de partidas são únicos no banco.
+O comando informa o ID do torneio importado; os endpoints aceitam `torneio_id`
+(o painel usa o torneio 1 por padrão).
+
+O fluxo é: CSV manual → importador Python (validação e transformação) → MySQL →
+API → frontend. Classificação, premiações e conferência consultam o banco;
+as requisições não releem o CSV. Após alterar o arquivo, execute a carga novamente.
+
+A conexão padrão usa o MySQL local configurado no Compose. Para outro ambiente,
+defina `DATABASE_URL` (formato `mysql+pymysql://usuario:senha@host:3306/banco`).
+O frontend usa `http://localhost:8000`, configurável por `REACT_APP_API_URL`.
+Origens permitidas pela API podem ser definidas em `CORS_ORIGINS`, separadas por vírgulas.
