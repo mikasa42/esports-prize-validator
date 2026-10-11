@@ -42,7 +42,7 @@ npm run dev
 ```
 
 O setup cria a `.venv` na raiz e instala as bibliotecas de
-`backend/requirements.txt`. Também instala as dependências do frontend com
+`requirements.txt`. Também instala as dependências do frontend com
 `npm ci`, usando `frontend/package-lock.json` e a opção `--legacy-peer-deps`
 utilizada pelo projeto. Python e Node mantêm suas dependências em diretórios
 próprios (`.venv/` e `frontend/node_modules/`), com comandos centralizados na
@@ -68,7 +68,7 @@ npm run build:frontend
 ```
 
 O NumPy está fixado na série 1.26 para compatibilidade com Pandas 2.2.1.
-Ao adicionar bibliotecas, atualize `backend/requirements.txt` ou o manifesto e
+Ao adicionar bibliotecas, atualize `requirements.txt` ou o manifesto e
 lockfile do frontend, conforme a linguagem, e execute novamente o setup.
 
 Para iniciar apenas o banco de dados:
