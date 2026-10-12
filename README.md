@@ -168,3 +168,9 @@ Para restaurar os padrões, execute `docker compose up -d official-api` sem
 essas variáveis. A inicialização do SQL ocorre somente com um volume novo;
 reiniciar os containers não reinsere os registros. Alterar o SQL após a primeira
 carga não atualiza automaticamente o banco existente.
+
+Ao reenviar um CSV com conteúdo idêntico ao conjunto completo de dados de um
+torneio já cadastrado, mesmo usando outro nome, o sistema reutiliza seu ID,
+aplica o critério escolhido e exibe a classificação e as premiações. Não cria
+outro torneio nem duplica as partidas. Conteúdos diferentes ou parciais com IDs
+de outro torneio exigem o nome original para atualizar os dados.

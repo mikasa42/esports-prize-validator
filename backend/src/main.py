@@ -9,7 +9,7 @@ from fastapi import FastAPI, File, Form, HTTPException, Query, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import update
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
-from src.import_csv import importar_csv_conteudo
+from src.import_csv import CsvConflitante, importar_csv_conteudo
 from src.database import engine, partidas
 from src.services.tournament_service import TournamentService
 from src.services.verification_service import verificar_grupo
@@ -46,11 +46,14 @@ def upload_csv(
         if not content.strip():
             raise HTTPException(status_code=400, detail="O arquivo CSV está vazio.")
         resultado = importar_csv_conteudo(content, nome, criterio)
-        return {"mensagem": "CSV importado com sucesso.", **resultado}
+        mensagem = "CSV já cadastrado. Dados existentes carregados." if resultado.get("reutilizado") else "CSV importado com sucesso."
+        return {"mensagem": mensagem, **resultado}
     except HTTPException:
         raise
     except UnicodeDecodeError:
         raise HTTPException(status_code=400, detail="Salve o CSV com codificação UTF-8.")
+    except CsvConflitante as err:
+        raise HTTPException(status_code=409, detail=str(err))
     except ValueError as err:
         raise HTTPException(status_code=400, detail=str(err))
     except IntegrityError:

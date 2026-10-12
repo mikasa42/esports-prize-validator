@@ -11,7 +11,7 @@ function App() {
 
   const [arquivoCsv, setArquivoCsv] = useState(null);
   const [nomeTorneio, setNomeTorneio] = useState('Torneio Setembro');
-  const [torneioId, setTorneioId] = useState(1);
+  const [torneioId, setTorneioId] = useState(null);
   const [importando, setImportando] = useState(false);
   const [resultadoImportacao, setResultadoImportacao] = useState(null);
   const [erroImportacao, setErroImportacao] = useState('');
@@ -21,6 +21,7 @@ function App() {
   const API_URL = process.env.REACT_APP_API_URL || "";
 
   useEffect(() => {
+    if (torneioId === null) return;
     const controller = new AbortController();
     setErroDados('');
     Promise.all([
@@ -124,7 +125,7 @@ function App() {
         </form>
         <p style={{ fontSize: '13px', color: '#475569', overflowWrap: 'anywhere' }}>Colunas: Data, Rodada, ID Partida, Partida, Time / Nick, Minutos, Kills, Venceu?</p>
         {erroImportacao && <p role="alert" style={{ color: '#b91c1c' }}>{erroImportacao}</p>}
-        {resultadoImportacao && <p role="status" style={{ color: '#166534' }}>Importação concluída: {resultadoImportacao.partidas} partidas e {resultadoImportacao.participantes} participações de jogadores. Os dados foram salvos.</p>}
+        {resultadoImportacao && <p role="status" style={{ color: '#166534' }}>{resultadoImportacao.reutilizado ? 'CSV já cadastrado. Dados carregados:' : 'Importação concluída:'} {resultadoImportacao.partidas} partidas e {resultadoImportacao.participantes} participações de jogadores. Os dados foram salvos.</p>}
         {statusVerificacao && (
           <div role="status" style={{ marginTop: '20px', background: '#e2e8f0', padding: '15px', borderRadius: '5px' }}>
             <strong>Resultado da Verificação:</strong> {statusVerificacao.status_geral}
@@ -160,24 +161,23 @@ function App() {
       </section>
 
       {/* Extrato de Prêmios */}
-      {premios && (
-        <section>
-          <h2>Distribuição de Prêmios (Base: R$ 10.000,00 | Critério: {premios.criterio_utilizado})</h2>
+      <section>
+          <h2>Distribuição de Prêmios (Base: R$ 10.000,00 | Critério: {premios?.criterio_utilizado || criterioSalvo})</h2>
           <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '10px' }}>
             <thead>
               <tr style={{ background: '#f1f5f9', textAlign: 'left' }}>
                 <th style={{ padding: '10px', borderBottom: '1px solid #cbd5e1' }}>Time</th>
                 <th style={{ padding: '10px', borderBottom: '1px solid #cbd5e1' }}>Jogador</th>
-                <th style={{ padding: '10px', borderBottom: '1px solid #cbd5e1' }}>Total ({premios.criterio_utilizado})</th>
+                <th style={{ padding: '10px', borderBottom: '1px solid #cbd5e1' }}>Total ({premios?.criterio_utilizado || criterioSalvo})</th>
                 <th style={{ padding: '10px', borderBottom: '1px solid #cbd5e1' }}>Prêmio (R$)</th>
               </tr>
             </thead>
             <tbody>
-              {premios.premio_jogadores.map((p, idx) => (
+              {(premios?.premio_jogadores || []).map((p, idx) => (
                 <tr key={idx}>
                   <td style={{ padding: '10px', borderBottom: '1px solid #e2e8f0' }}>{p.time}</td>
                   <td style={{ padding: '10px', borderBottom: '1px solid #e2e8f0' }}>{p.jogador}</td>
-                  <td style={{ padding: '10px', borderBottom: '1px solid #cbd5e1' }}>{p[`total_${premios.criterio_utilizado}`]}</td>
+                  <td style={{ padding: '10px', borderBottom: '1px solid #cbd5e1' }}>{p[`total_${premios?.criterio_utilizado || criterioSalvo}`]}</td>
                   <td style={{ padding: '10px', borderBottom: '1px solid #e2e8f0', fontWeight: 'bold', color: '#16a34a' }}>
                     R$ {p.premio_rs.toFixed(2)}
                   </td>
@@ -185,8 +185,7 @@ function App() {
               ))}
             </tbody>
           </table>
-        </section>
-      )}
+      </section>
     </div>
   );
 }
