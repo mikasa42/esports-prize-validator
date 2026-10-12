@@ -1,31 +1,9 @@
-import pandas as pd
-from sqlalchemy import select
-from src.database import engine, participantes, partidas
+"""Classificação e rateio calculados em memória com os dados retornados pela API."""
 
 class TournamentService:
-    def carregar_dados(self, torneio_id: int = 1) -> pd.DataFrame:
-        """Consulta os participantes persistidos no banco, sem reler o CSV."""
-        query = select(
-            partidas.c.match_id_externo.label('ID Partida'),
-            partidas.c.data_partida.label('Data'),
-            partidas.c.rodada.label('Rodada'),
-            partidas.c.confronto.label('Partida'),
-            participantes.c.time_nome.label('time'),
-            participantes.c.jogador_nick.label('jogador'),
-            participantes.c.minutos.label('Minutos'),
-            participantes.c.kills.label('Kills'),
-            participantes.c.venceu,
-        ).select_from(participantes.join(partidas)).where(partidas.c.torneio_id == torneio_id)
-        with engine.connect() as conn:
-            df = pd.read_sql(query, conn)
-        if df.empty:
-            raise ValueError("Torneio sem dados. Execute npm run import:csv primeiro.")
-        df['Venceu?'] = df['venceu'].map(lambda venceu: 'Sim' if venceu else 'Não')
-        return df
-
-    def calcular_vitorias_por_time(self, torneio_id: int = 1) -> dict:
+    def calcular_vitorias_por_time(self, dados) -> dict:
         """Calcula o total de vitórias por time para definir a colocação."""
-        df = self.carregar_dados(torneio_id)
+        df = dados
         
         # Filtra apenas linhas onde o time venceu ('Sim')
         # Agrupa por time e conta partidas únicas ou ocorrências
@@ -36,7 +14,7 @@ class TournamentService:
         vitorias = vitorias.sort_values(by='vitorias', ascending=False)
         return vitorias.to_dict(orient='records')
 
-    def calcular_rateio_premios(self, premio_total: float = 10000.00, criterio: str = 'minutos', torneio_id: int = 1) -> dict:
+    def calcular_rateio_premios(self, dados, premio_total: float = 10000.00, criterio: str = 'minutos') -> dict:
         """
         Calcula a distribuição do prêmio total (ex: R$ 10.000,00) seguindo a regra:
         - 1º lugar: 50%
@@ -44,7 +22,7 @@ class TournamentService:
         - 3º lugar: 20%
         E dentro do time, divide proporcionalmente por 'minutos' ou 'kills'.
         """
-        df = self.carregar_dados(torneio_id)
+        df = dados
         
         # Separa a coluna 'Time / Nick' em 'time' e 'jogador'
         

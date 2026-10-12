@@ -5,6 +5,7 @@ import time
 from urllib.parse import quote
 
 import requests
+from src.match_ids import normalizar_id_partida
 
 logger = logging.getLogger(__name__)
 
@@ -20,6 +21,7 @@ class APIOficialIndisponivel(Exception):
 class OficialApiSimulator:
     @staticmethod
     def consultar_partida(match_id_externo: str, max_tentativas: int = 3):
+        match_id_externo = normalizar_id_partida(match_id_externo)
         if max_tentativas < 1:
             raise ValueError('É necessário pelo menos uma tentativa.')
         base = os.environ.get('OFFICIAL_API_URL', 'http://127.0.0.1:8001').rstrip('/')
@@ -31,10 +33,11 @@ class OficialApiSimulator:
                     raise PartidaNaoEncontrada('Partida não encontrada no banco oficial.')
                 response.raise_for_status()
                 result = response.json()
-                if (not isinstance(result, dict) or result.get('match_id_externo') != match_id_externo
+                if (not isinstance(result, dict) or normalizar_id_partida(result.get('match_id_externo', '')) != match_id_externo
                         or not isinstance(result.get('participantes'), list)
                         or not all(key in result for key in ('data_partida', 'rodada', 'confronto'))):
                     raise APIOficialIndisponivel('Resposta inválida da API oficial.')
+                result['match_id_externo'] = match_id_externo
                 result['tentativas_realizadas'] = tentativa
                 return result
             except requests.RequestException as err:
