@@ -79,6 +79,19 @@ Para iniciar apenas o banco de dados:
 docker compose up -d db
 ```
 
+O painel permite enviar o CSV pela seção **Importar dados do torneio**.
+Informe o nome do torneio, selecione o arquivo e clique em **Importar CSV**.
+O backend valida e transforma o conteúdo antes de salvar no MySQL; o painel
+atualiza automaticamente a classificação e as premiações após a importação.
+O arquivo deve ser UTF-8, ter até 10 MB e conter as colunas `Data`, `Rodada`,
+`ID Partida`, `Partida`, `Time / Nick`, `Minutos`, `Kills` e `Venceu?`.
+Use datas `AAAA-MM-DD`, números inteiros não negativos, `Time / Jogador` e
+resultados `Sim` ou `Não`. O endpoint é `POST /api/importar-csv`, com os campos
+multipart `arquivo` e `nome`. Recarregar o mesmo nome substitui seus dados e
+verificações; arquivos inválidos preservam os dados anteriores.
+
+Também é possível fazer a carga pelo terminal.
+
 O CSV é colocado manualmente em `database/torneio-setembro.csv`. Execute
 `npm run import:csv` para validar e carregar os dados no MySQL. Para outro arquivo:
 
@@ -90,9 +103,9 @@ A recarga substitui as partidas, participantes e verificações do torneio com o
 mesmo nome, sem duplicar registros. A operação é transacional: se falhar,
 os dados anteriores são preservados. IDs externos de partidas são únicos no banco.
 O comando informa o ID do torneio importado; os endpoints aceitam `torneio_id`
-(o painel usa o torneio 1 por padrão).
+(o painel começa no torneio 1 e passa a usar o torneio retornado pelo upload).
 
-O fluxo é: CSV manual → importador Python (validação e transformação) → MySQL →
+O fluxo é: upload ou CSV manual → importador Python (validação e transformação) → MySQL →
 API → frontend. Classificação, premiações e conferência consultam o banco;
 as requisições não releem o CSV. Após alterar o arquivo, execute a carga novamente.
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 
 function App() {
@@ -8,29 +8,76 @@ function App() {
   const [statusVerificacao, setStatusVerificacao] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  const [arquivoCsv, setArquivoCsv] = useState(null);
+  const [nomeTorneio, setNomeTorneio] = useState('Torneio Setembro');
+  const [torneioId, setTorneioId] = useState(1);
+  const [importando, setImportando] = useState(false);
+  const [resultadoImportacao, setResultadoImportacao] = useState(null);
+  const [erroImportacao, setErroImportacao] = useState('');
+  const [erroDados, setErroDados] = useState('');
+  const [atualizacao, setAtualizacao] = useState(0);
+  const inputCsv = useRef(null);
+
   const API_URL = process.env.REACT_APP_API_URL || "";
 
-  const carregarDados = async () => {
-    try {
-      const resClass = await axios.get(`${API_URL}/api/classificacao`);
+  useEffect(() => {
+    const controller = new AbortController();
+    setErroDados('');
+    Promise.all([
+      axios.get(`${API_URL}/api/classificacao`, { params: { torneio_id: torneioId }, signal: controller.signal }),
+      axios.get(`${API_URL}/api/premios`, { params: { criterio, torneio_id: torneioId }, signal: controller.signal }),
+    ]).then(([resClass, resPremios]) => {
       setClassificacao(resClass.data.classificacao);
-
-      const resPremios = await axios.get(`${API_URL}/api/premios?criterio=${criterio}`);
       setPremios(resPremios.data);
+    }).catch((err) => {
+      if (!axios.isCancel(err)) {
+        setClassificacao([]);
+        setPremios(null);
+        setErroDados('Não foi possível carregar os dados. Importe um CSV ou tente novamente.');
+      }
+    });
+    return () => controller.abort();
+  }, [API_URL, criterio, torneioId, atualizacao]);
+
+  const importarCsv = async (event) => {
+    event.preventDefault();
+    setErroImportacao('');
+    setResultadoImportacao(null);
+    if (!arquivoCsv || !arquivoCsv.name.toLowerCase().endsWith('.csv')) {
+      setErroImportacao('Selecione um arquivo .csv.');
+      return;
+    }
+    if (arquivoCsv.size > 10 * 1024 * 1024) {
+      setErroImportacao('O CSV deve ter no máximo 10 MB.');
+      return;
+    }
+    setImportando(true);
+    const form = new FormData();
+    form.append('arquivo', arquivoCsv);
+    form.append('nome', nomeTorneio.trim());
+    try {
+      const { data } = await axios.post(`${API_URL}/api/importar-csv`, form);
+      setResultadoImportacao(data);
+      setTorneioId(data.torneio_id);
+      setStatusVerificacao(null);
+      setClassificacao([]);
+      setPremios(null);
+      setAtualizacao((value) => value + 1);
+      setArquivoCsv(null);
+      if (inputCsv.current) inputCsv.current.value = '';
     } catch (err) {
-      console.error("Erro ao carregar dados da API:", err);
+      const detail = err.response?.data?.detail;
+      setErroImportacao(typeof detail === 'string' ? detail : 'Não foi possível importar o CSV. Verifique a conexão e tente novamente.');
+    } finally {
+      setImportando(false);
     }
   };
-
-  useEffect(() => {
-    carregarDados();
-  }, [criterio]);
 
   const dispararVerificacao = async () => {
     setLoading(true);
     setStatusVerificacao(null);
     try {
-      const res = await axios.post(`${API_URL}/api/verificar-partidas`);
+      const res = await axios.post(`${API_URL}/api/verificar-partidas`, null, { params: { torneio_id: torneioId } });
       setStatusVerificacao(res.data);
     } catch (err) {
       alert("Erro ao verificar partidas com o site oficial.");
@@ -46,13 +93,39 @@ function App() {
         <p style={{ margin: 0, color: '#666' }}>PowerRev Tech Challenge — Conferência de Torneios e Premiações</p>
       </header>
 
+      <section style={{ margin: '25px 0', padding: '20px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
+        <h2>Importar dados do torneio</h2>
+        <p>Selecione um CSV para atualizar os dados do torneio. A importação substitui as partidas, participantes e conferências do torneio com o mesmo nome.</p>
+        <form onSubmit={importarCsv} style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'end' }}>
+          <label style={{ display: 'grid', gap: '6px' }}>
+            Nome do torneio
+            <input value={nomeTorneio} onChange={(event) => setNomeTorneio(event.target.value)} required maxLength={100} disabled={importando || loading} style={{ padding: '8px' }} />
+          </label>
+          <label style={{ display: 'grid', gap: '6px' }}>
+            Arquivo CSV (UTF-8, até 10 MB)
+            <input ref={inputCsv} type="file" accept=".csv,text/csv" disabled={importando || loading} onChange={(event) => {
+              setArquivoCsv(event.target.files?.[0] || null);
+              setErroImportacao('');
+              setResultadoImportacao(null);
+            }} />
+          </label>
+          <button type="submit" disabled={importando || loading || !arquivoCsv || !nomeTorneio.trim()} style={{ padding: '10px 20px', background: '#2563eb', color: 'white', border: 0, borderRadius: '5px', cursor: 'pointer' }}>
+            {importando ? 'Importando CSV...' : 'Importar CSV'}
+          </button>
+        </form>
+        <p style={{ fontSize: '13px', color: '#475569', overflowWrap: 'anywhere' }}>Colunas: Data, Rodada, ID Partida, Partida, Time / Nick, Minutos, Kills, Venceu?</p>
+        {erroImportacao && <p role="alert" style={{ color: '#b91c1c' }}>{erroImportacao}</p>}
+        {resultadoImportacao && <p role="status" style={{ color: '#166534' }}>Importação concluída: {resultadoImportacao.partidas} partidas e {resultadoImportacao.participantes} participações de jogadores. Os dados foram salvos.</p>}
+      </section>
+      {erroDados && <p role="alert" style={{ color: '#b91c1c' }}>{erroDados}</p>}
+
       {/* Seção de Ações */}
       <section style={{ background: '#f8fafc', padding: '20px', borderRadius: '8px', marginBottom: '30px', border: '1px solid #e2e8f0' }}>
         <h2>Painel de Controle</h2>
         <div style={{ display: 'flex', gap: '15px', alignItems: 'center', marginTop: '15px' }}>
           <button 
             onClick={dispararVerificacao} 
-            disabled={loading}
+            disabled={loading || importando}
             style={{ background: '#2563eb', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}
           >
             {loading ? "Conferindo no Site Oficial..." : "🔄 Conferir Partidas no Site Oficial"}
@@ -61,6 +134,7 @@ function App() {
           <label style={{ fontWeight: 'bold', marginLeft: '20px' }}>Critério de Rateio do Prêmio:</label>
           <select 
             value={criterio} 
+            disabled={importando || loading}
             onChange={(e) => setCriterio(e.target.value)}
             style={{ padding: '8px', borderRadius: '5px', border: '1px solid #cbd5e1' }}
           >

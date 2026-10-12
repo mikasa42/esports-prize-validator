@@ -1,10 +1,13 @@
+import logging
 import json
 import os
 from typing import Literal
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, File, Form, HTTPException, Query, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import update
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from src.import_csv import importar_csv_conteudo
 from src.database import engine, partidas
 from src.services.tournament_service import TournamentService
 from src.simulator.api_simulator import OficialApiSimulator
@@ -21,6 +24,40 @@ tournament_service = TournamentService()
 @app.get("/")
 def read_root():
     return {"message": "API de Gestão de Torneios operando com sucesso!"}
+
+MAX_CSV_BYTES = 10 * 1024 * 1024
+
+
+@app.post("/api/importar-csv", status_code=201)
+def upload_csv(
+    arquivo: UploadFile = File(...),
+    nome: str = Form("Torneio Setembro"),
+):
+    """Valida o CSV enviado e substitui os dados do torneio em uma transação."""
+    try:
+        if not arquivo.filename or not arquivo.filename.lower().endswith(".csv"):
+            raise HTTPException(status_code=400, detail="Selecione um arquivo .csv.")
+        content = arquivo.file.read(MAX_CSV_BYTES + 1)
+        if len(content) > MAX_CSV_BYTES:
+            raise HTTPException(status_code=413, detail="O CSV deve ter no máximo 10 MB.")
+        if not content.strip():
+            raise HTTPException(status_code=400, detail="O arquivo CSV está vazio.")
+        resultado = importar_csv_conteudo(content, nome)
+        return {"mensagem": "CSV importado com sucesso.", **resultado}
+    except HTTPException:
+        raise
+    except UnicodeDecodeError:
+        raise HTTPException(status_code=400, detail="Salve o CSV com codificação UTF-8.")
+    except ValueError as err:
+        raise HTTPException(status_code=400, detail=str(err))
+    except IntegrityError:
+        raise HTTPException(status_code=409, detail="Uma partida deste CSV já pertence a outro torneio. Os dados anteriores foram preservados.")
+    except SQLAlchemyError:
+        logging.exception("Falha na carga do CSV no banco")
+        raise HTTPException(status_code=503, detail="Não foi possível salvar no banco. Tente novamente.")
+    finally:
+        arquivo.file.close()
+
 
 @app.get("/api/classificacao")
 def obter_classificacao(torneio_id: int = Query(1, ge=1)):
