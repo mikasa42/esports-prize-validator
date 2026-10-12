@@ -1,42 +1,77 @@
 # DECISIONS.md — Registro de Decisões Arquiteturais e Trade-offs
 
-Este documento registra as principais escolhas técnicas, alternativas consideradas, trade-offs e itens deliberadamente deixados de fora por questão de escopo e prazo, conforme solicitado no desafio da PowerRev.
+Este documento registra a arquitetura atual, as alternativas consideradas e os limites de escopo do desafio da PowerRev.
 
----
-![img_2.png](img_2.png)
-## 1. Escolha da Stack Tecnológica
+## 1. Stack tecnológica
 
-### Backend: Python (FastAPI)
-* **Alternativas consideradas:** Node.js (Express/NestJS).
-* **Por que foi escolhido:** A PowerRev utiliza tanto Python quanto Node.js em sua stack principal. O **FastAPI** foi escolhido pela extrema velocidade de desenvolvimento, tipagem estática integrada (Pydantic), documentação automática via Swagger e excelente suporte nativo a operações assíncronas, o que facilita enormemente a construção do simulador de latência de rede.
+### Backend: Python com FastAPI
 
-### Processamento de Dados: Pandas
-* **Alternativas consideradas:** Leitura nativa com o módulo `csv` do Python.
-* **Por que foi escolhido:** O **Pandas** oferece uma API muito mais poderosa para agrupamentos (`groupby`), somas condicionais e filtragens rápidas, garantindo que os cálculos de vitórias e rateios de prêmios por minutos ou kills sejam feitos sem código repetitivo e com alta precisão matemática.
+FastAPI fornece validação dos parâmetros, documentação automática e integração com o frontend React. O endpoint de consulta é síncrono e executa as chamadas HTTP à API oficial em sequência. Node.js com Express ou NestJS seria uma alternativa; Python permite usar Pandas diretamente nos cálculos.
 
-### Banco de Dados: MySQL (via Docker)
-* **Alternativas consideradas:** SQLite, PostgreSQL.
-* **Por que foi escolhido:** O MySQL faz parte do ecossistema central da PowerRev. Utilizá-lo com Docker e mapear a inicialização via `docker-compose` atende perfeitamente ao requisito de subir a infraestrutura conectada de ponta a ponta com facilidade.
+### Processamento em memória: Pandas
 
-### Frontend: React (SPA Simples)
-* **Alternativas consideradas:** Vue.js, Server-Side Rendering com Next.js, ou HTML/JS puro.
-* **Por que foi escolhido:** **React** é amplamente utilizado e permite montar componentes reutilizáveis de forma muito rápida. Como o foco principal do desafio era demonstrar a engenharia de backend, o processamento de dados e a visão de produto, optou-se por uma aplicação React enxuta consumindo a API REST.
+Pandas lê o CSV e calcula a classificação por vitórias e o rateio por minutos ou abates. A alternativa seria combinar o módulo `csv` com agregações manuais. Os dados existem somente durante o processamento da requisição, sem persistência pelo backend.
 
----
+### Frontend: React e Axios
 
-## 2. Decisões de Arquitetura e Regras de Negócio
+Uma SPA permite selecionar o arquivo e o critério de rateio e visualizar partidas, jogadores, falhas e premiações na mesma tela. Axios envia o CSV como multipart. O frontend acessa `/api` pelo proxy do React em desenvolvimento e pelo Nginx nos containers.
 
-### Simulação da API Oficial com Resiliência (Retries)
-* **Contexto:** O desafio aponta que o site oficial possui alta latência (2 a 10 segundos) e instabilidades intermitentes.
-* **Decisão:** Criou-se um simulador que introduz `time.sleep` aleatório e simula falhas controladas (15% de chance). Para garantir robustez (essencial em sistemas que lidam com dados corporativos e financeiros), implementou-se uma política interna de *retries* (tentativas repetidas) antes de registrar a falha ou divergência no relatório.
+### MySQL restrito ao simulador oficial
 
-### Critério Dinâmico de Rateio de Prêmios
-* **Contexto:** A Maria Clara sugeriu mudar a divisão do prêmio de **minutos jogados** para **kills dos jogadores**.
-* **Decisão:** A API foi construída permitindo alternar o critério de cálculo via parâmetro (`/api/premios?criterio=minutos` ou `criterio=kills`), permitindo que a operadora avalie o impacto financeiro de ambas as regras antes de tomar a decisão de negócio definitiva.
+O backend deixou de usar MySQL, SQLAlchemy e PyMySQL. Essas bibliotecas pertencem somente à imagem do serviço externo `official-api`, que lê os dados preexistentes do seu próprio MySQL (`official-db`). O backend consulta esse serviço exclusivamente por HTTP, usando `OFFICIAL_API_URL`.
 
----
+Essa separação permite executar o backend sem banco ou bibliotecas de acesso a banco. As consultas não gravam uploads, partidas, respostas ou logs no MySQL. A inicialização dos dados do simulador ocorre separadamente, pelo SQL montado no serviço `official-db`.
 
-## 3. O Que Foi Decidido Deixar de Fora (e por quê)
+## 2. Arquitetura de consulta
 
-* **Autenticação e Perfis de Usuário:** Como o foco do MVP é resolver o problema operacional imediato da Maria Clara, omitiu-se um sistema completo de login/JWT por falta de tempo, focando na usabilidade direta do painel.
-* **Persistência Completa de Logs de Erro no MySQL:** Embora a estrutura de banco de dados suporte o armazenamento relacional completo, optou-se por retornar os resultados da conferência diretamente via JSON na resposta da API para manter o fluxo ágil e focado na entrega do Product Engineer.
+```mermaid
+flowchart LR
+    F[Frontend React] -->|CSV e critério| B[Backend FastAPI]
+    B -->|Uma consulta por linha| A[API oficial simulada]
+    A -->|Leitura dos dados oficiais| D[(MySQL do simulador)]
+    A -->|Partidas e jogadores| B
+    B -->|Resultados e cálculos em memória| F
+```
+
+### CSV como lista de IDs, sem vínculo com torneio
+
+O endpoint `POST /api/consultar-csv` recebe os campos multipart `arquivo` e `criterio` (`minutos` ou `kills`). O CSV deve ser UTF-8, ter até 10 MB e conter `id_partida` ou `ID Partida`. Não há campo de nome ou ID de torneio.
+
+Somente os IDs do arquivo orientam as consultas; as demais colunas não são comparadas nem usadas como fonte das estatísticas. Isso permite consultar partidas de diferentes torneios no mesmo envio e obter todos os jogadores retornados pela API, mesmo quando o CSV contém dados incompletos.
+
+Os IDs são normalizados quanto a maiúsculas, espaços, caracteres invisíveis e hífens. Para IDs Fortnite, zeros extras na rodada e no número da partida também são removidos.
+
+### Sem banco ou cache no backend
+
+A arquitetura anterior importava CSVs vinculados a torneios e, posteriormente, buscava partidas no banco ou em um cache antes de consultar a API. Esse fluxo foi substituído por consultas diretas à API em cada envio. As rotas antigas de importação, classificação por torneio, premiação por torneio e verificação de dados persistidos foram removidas.
+
+A decisão elimina conflitos de IDs entre torneios e a necessidade de manter dados locais sincronizados. O custo é depender da disponibilidade e do tempo de resposta da API em todas as consultas; não há histórico salvo para reabrir resultados anteriores.
+
+### Consultas sequenciais, uma por linha
+
+Cada linha válida do CSV gera uma consulta, na ordem do arquivo. IDs repetidos também são consultados novamente. Não há deduplicação antes das chamadas, executor paralelo ou configuração de quantidade de workers.
+
+O paralelismo foi experimentado com limites de 5, 20 e 100 consultas simultâneas. A configuração atual segue a escolha de executar uma consulta por linha sem paralelismo, mantendo a latência simulada ativa. Isso torna o processamento mais demorado: os tempos das consultas e de eventuais novas tentativas se acumulam.
+
+O backend retorna o resultado após concluir todas as linhas. O frontend aguarda essa resposta; não há envio progressivo de partidas.
+
+### API oficial com latência e novas tentativas
+
+O simulador introduz atraso aleatório de 2 a 10 segundos e 5% de falhas temporárias. Os parâmetros são configuráveis por `OFFICIAL_MIN_DELAY`, `OFFICIAL_MAX_DELAY` e `OFFICIAL_FAILURE_RATE`; o arquivo `docker-compose.test.yml` mantém o atraso ativo.
+
+O cliente HTTP usa timeout de 3 segundos para conexão e 15 segundos para leitura. Falhas de requisição podem gerar até três tentativas por linha, com esperas de 1 e 2 segundos entre elas. Uma resposta 404 é reportada como `nao_encontrada`, sem novas tentativas. Indisponibilidade e respostas inválidas são reportadas como `erro_api`.
+
+### Resultados parciais e premiação
+
+A resposta contém `partidas`, `falhas`, `total_solicitado`, `classificacao` e `premios`. Partidas encontradas continuam visíveis quando outras linhas falham, com os erros identificados por ID. Classificação e premiações só são calculadas quando todas as linhas terminam sem falhas.
+
+Os cálculos usam os dados retornados pela API. Embora IDs repetidos gerem novas consultas e resultados por linha, cada partida é considerada uma única vez nos cálculos para evitar duplicar minutos, abates e premiações.
+
+O prêmio base é de R$ 10.000,00. Os três primeiros times recebem respectivamente 50%, 30% e 20%, e o valor de cada time é dividido entre seus jogadores proporcionalmente aos minutos ou abates. O critério escolhido acompanha o upload; não depende de uma rota separada de premiações. Os valores são arredondados a duas casas decimais, sem mecanismo adicional de conciliação dos centavos residuais.
+
+## 3. Fora do escopo atual
+
+- **Autenticação e perfis:** o painel permanece voltado à consulta direta do MVP, sem login ou autorização por usuário.
+- **Persistência, histórico e cache no backend:** foram removidos do fluxo. Resultados e falhas são devolvidos diretamente ao frontend.
+- **Comparação das estatísticas do CSV com as oficiais:** o CSV fornece os IDs; a API fornece os dados usados na tela e nos cálculos.
+- **Paralelismo e resultados progressivos:** o processamento atual é sequencial e retorna uma única resposta após concluir o arquivo.
