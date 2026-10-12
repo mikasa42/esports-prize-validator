@@ -24,14 +24,7 @@ Essa separação permite executar o backend sem banco ou bibliotecas de acesso a
 
 ## 2. Arquitetura de consulta
 
-```mermaid
-flowchart LR
-    F[Frontend React] -->|CSV e critério| B[Backend FastAPI]
-    B -->|Uma consulta por linha| A[API oficial simulada]
-    A -->|Leitura dos dados oficiais| D[(MySQL do simulador)]
-    A -->|Partidas e jogadores| B
-    B -->|Resultados e cálculos em memória| F
-```
+![img_2.png](img_2.png)
 
 ### CSV como lista de IDs, sem vínculo com torneio
 
