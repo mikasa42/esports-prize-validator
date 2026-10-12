@@ -3,7 +3,7 @@
 Este documento registra as principais escolhas técnicas, alternativas consideradas, trade-offs e itens deliberadamente deixados de fora por questão de escopo e prazo, conforme solicitado no desafio da PowerRev.
 
 ---
-![img_1.png](img_1.png)
+![img_2.png](img_2.png)
 ## 1. Escolha da Stack Tecnológica
 
 ### Backend: Python (FastAPI)
