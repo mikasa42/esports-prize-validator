@@ -79,15 +79,17 @@ Para iniciar apenas o banco de dados:
 docker compose up -d db
 ```
 
-O painel permite enviar o CSV pela seção **Importar dados do torneio**.
-Informe o nome do torneio, selecione o arquivo e clique em **Importar CSV**.
+O painel permite enviar o CSV pela seção **Dados e conferência do torneio**.
+Informe o nome do torneio, selecione o arquivo, escolha o critério de rateio
+e clique em **Salvar**. A conferência no site oficial é iniciada automaticamente
+após a carga, e o resultado aparece na mesma seção.
 O backend valida e transforma o conteúdo antes de salvar no MySQL; o painel
 atualiza automaticamente a classificação e as premiações após a importação.
 O arquivo deve ser UTF-8, ter até 10 MB e conter as colunas `Data`, `Rodada`,
 `ID Partida`, `Partida`, `Time / Nick`, `Minutos`, `Kills` e `Venceu?`.
 Use datas `AAAA-MM-DD`, números inteiros não negativos, `Time / Jogador` e
 resultados `Sim` ou `Não`. O endpoint é `POST /api/importar-csv`, com os campos
-multipart `arquivo` e `nome`. Recarregar o mesmo nome substitui seus dados e
+multipart `arquivo`, `nome` e `criterio` (`minutos` ou `kills`). Recarregar o mesmo nome substitui seus dados e
 verificações; arquivos inválidos preservam os dados anteriores.
 
 Também é possível fazer a carga pelo terminal.

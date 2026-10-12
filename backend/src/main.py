@@ -34,6 +34,7 @@ MAX_CSV_BYTES = 10 * 1024 * 1024
 def upload_csv(
     arquivo: UploadFile = File(...),
     nome: str = Form("Torneio Setembro"),
+    criterio: Literal["minutos", "kills"] = Form("minutos"),
 ):
     """Valida o CSV enviado e substitui os dados do torneio em uma transação."""
     try:
@@ -44,7 +45,7 @@ def upload_csv(
             raise HTTPException(status_code=413, detail="O CSV deve ter no máximo 10 MB.")
         if not content.strip():
             raise HTTPException(status_code=400, detail="O arquivo CSV está vazio.")
-        resultado = importar_csv_conteudo(content, nome)
+        resultado = importar_csv_conteudo(content, nome, criterio)
         return {"mensagem": "CSV importado com sucesso.", **resultado}
     except HTTPException:
         raise
