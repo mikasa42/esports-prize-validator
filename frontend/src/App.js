@@ -110,7 +110,7 @@ function App() {
             }} />
           </label>
           <button type="submit" disabled={importando || loading || !arquivoCsv || !nomeTorneio.trim()} style={{ padding: '10px 20px', background: '#2563eb', color: 'white', border: 0, borderRadius: '5px', cursor: 'pointer' }}>
-            {importando ? 'Importando CSV...' : 'Importar CSV'}
+            {importando ? 'Enviando...' : 'Enviar'}
           </button>
         </form>
         <p style={{ fontSize: '13px', color: '#475569', overflowWrap: 'anywhere' }}>Colunas: Data, Rodada, ID Partida, Partida, Time / Nick, Minutos, Kills, Venceu?</p>
