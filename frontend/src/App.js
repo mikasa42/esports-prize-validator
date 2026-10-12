@@ -73,7 +73,7 @@ function App() {
         const res = await axios.post(`${API_URL}/api/verificar-partidas`, null, { params: { torneio_id: data.torneio_id } });
         setStatusVerificacao(res.data);
       } catch (err) {
-        setErroImportacao('Os dados foram salvos, mas não foi possível concluir a conferência. Clique em Salvar para tentar a conferência novamente.');
+        setErroImportacao('Os dados foram salvos, mas a API de conferência está indisponível ou não respondeu. Clique em Salvar para tentar novamente.');
       }
     } catch (err) {
       const detail = err.response?.data?.detail;
@@ -83,6 +83,9 @@ function App() {
       setLoading(false);
     }
   };
+
+  const falhasApi = (statusVerificacao?.divergencias_ou_falhas || []).filter((item) => item.status === 'erro_api');
+  const divergenciasDados = (statusVerificacao?.divergencias_ou_falhas || []).filter((item) => item.status === 'divergente');
 
   return (
     <div style={{ fontFamily: 'Arial, sans-serif', padding: '30px', maxWidth: '900px', margin: '0 auto', color: '#333' }}>
@@ -130,8 +133,18 @@ function App() {
           <div role="status" style={{ marginTop: '20px', background: '#e2e8f0', padding: '15px', borderRadius: '5px' }}>
             <strong>Resultado da Verificação:</strong> {statusVerificacao.status_geral}
             <p>Total de partidas conferidas: {statusVerificacao.total_partidas_verificadas}</p>
-            {statusVerificacao.divergencias_ou_falhas.length > 0 && (
-              <p style={{ color: '#dc2626' }}>Atenção: Foram encontradas divergências ou instabilidades em algumas partidas.</p>
+            {falhasApi.length > 0 && (
+              <p role="alert" style={{ color: '#b45309' }}>
+                Instabilidade da API oficial: não foi possível conferir {falhasApi.length} partida(s) após as tentativas de consulta.
+                Isso não indica erro nos dados do CSV. Clique em Salvar para tentar novamente.
+                Partidas: {falhasApi.map((item) => item.match_id_externo).join(', ')}.
+              </p>
+            )}
+            {divergenciasDados.length > 0 && (
+              <p role="alert" style={{ color: '#dc2626' }}>
+                Divergências nos dados: {divergenciasDados.length} partida(s) apresentam diferenças em relação aos dados oficiais ou não foram encontradas no banco oficial.
+                Partidas: {divergenciasDados.map((item) => item.match_id_externo).join(', ')}.
+              </p>
             )}
           </div>
         )}

@@ -49,7 +49,7 @@ services:
       OFFICIAL_DATABASE_URL: mysql+pymysql://official_user:official_password@official-db:3306/fortnite_oficial
       OFFICIAL_MIN_DELAY: ${OFFICIAL_MIN_DELAY:-2}
       OFFICIAL_MAX_DELAY: ${OFFICIAL_MAX_DELAY:-10}
-      OFFICIAL_FAILURE_RATE: ${OFFICIAL_FAILURE_RATE:-0.15}
+      OFFICIAL_FAILURE_RATE: ${OFFICIAL_FAILURE_RATE:-0.05}
     ports:
       - "8001:8001"
     depends_on:

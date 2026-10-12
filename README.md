@@ -156,7 +156,7 @@ como `verificado`, `divergente` ou `erro_api`. Um ID inexistente no site oficial
 O CSV de exemplo antigo contém IDs `MATCH-*`, ausentes no SQL Fortnite; para
 uma conferência positiva, importe um CSV com os IDs `FN-2026-*` e os dados correspondentes.
 
-A simulação mantém latência de 2 a 10 segundos e 15% de falhas temporárias.
+A simulação mantém latência de 2 a 10 segundos e 5% de falhas temporárias.
 O cliente faz até três tentativas, com timeout e até cinco partidas em paralelo.
 Para um ambiente de teste sem atraso ou falhas:
 

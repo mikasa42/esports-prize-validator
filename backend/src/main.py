@@ -108,11 +108,21 @@ def verificar_partidas(torneio_id: int = Query(1, ge=1)):
                     status_verificacao=resultado['status'],
                     detalhes_verificacao=json.dumps(resultado, ensure_ascii=False),
                 ))
+        tem_divergencias = any(res['status'] == 'divergente' for res in erros_encontrados)
+        tem_instabilidade = any(res['status'] == 'erro_api' for res in erros_encontrados)
+        if tem_divergencias and tem_instabilidade:
+            status_geral = "Conferência concluída com divergências nos dados e instabilidade da API oficial"
+        elif tem_instabilidade:
+            status_geral = "Conferência incompleta por instabilidade da API oficial"
+        elif tem_divergencias:
+            status_geral = "Conferência concluída com divergências nos dados"
+        else:
+            status_geral = "Conferência concluída com sucesso"
         return {
             "total_partidas_verificadas": len(resultados),
             "sucessos": resultados_verificacao,
             "divergencias_ou_falhas": erros_encontrados,
-            "status_geral": "Conferência concluída com sucesso" if not erros_encontrados else "Conferência concluída com divergências"
+            "status_geral": status_geral
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
