@@ -1,3 +1,5 @@
+SET NAMES utf8mb4;
+
 -- Criação da tabela para a API Oficial (Simulador)
 CREATE TABLE IF NOT EXISTS partidas_oficiais (
     id INT AUTO_INCREMENT PRIMARY KEY,

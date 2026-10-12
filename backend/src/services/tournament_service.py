@@ -7,6 +7,9 @@ class TournamentService:
         """Consulta os participantes persistidos no banco, sem reler o CSV."""
         query = select(
             partidas.c.match_id_externo.label('ID Partida'),
+            partidas.c.data_partida.label('Data'),
+            partidas.c.rodada.label('Rodada'),
+            partidas.c.confronto.label('Partida'),
             participantes.c.time_nome.label('time'),
             participantes.c.jogador_nick.label('jogador'),
             participantes.c.minutos.label('Minutos'),

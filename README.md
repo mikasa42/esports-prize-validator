@@ -128,3 +128,41 @@ Acesse o painel em `http://localhost:3000` e a documentação da API em
 `localhost` pelo IP da máquina que executa o Docker. O navegador consulta
 `/api` pelo painel na porta 3000; não precisa conhecer o IP dos containers.
 O CSV local está montado no backend; após alterá-lo, repita o comando de carga.
+
+### Site oficial simulado com MySQL separado
+
+O Compose também inicia `official-db` (MySQL próprio, banco `fortnite_oficial`)
+e `official-api` (FastAPI). O SQL
+`backend/src/simulator/Partidas_Oficiais_Fortnite.sql` é executado automaticamente
+na primeira inicialização do volume `official_mysql_data`, carregando 400
+participações de jogadores e 50 partidas. O banco principal dos torneios continua
+em `db`, com seu volume `mysql_data`; os uploads não alteram os dados oficiais.
+
+- Documentação da API oficial: `http://localhost:8001/docs`.
+- Lista de partidas: `GET http://localhost:8001/api/partidas` (paginação por `limit` e `offset`).
+- Dados de uma partida: `GET http://localhost:8001/api/partidas/FN-2026-R1-M1001`.
+- MySQL oficial: `127.0.0.1:3307`, banco `fortnite_oficial`, usuário `official_user`, senha `official_password`.
+
+O backend consulta `http://official-api:8001` pela rede Docker. Fora dos
+containers, usa `http://127.0.0.1:8001`, configurável por `OFFICIAL_API_URL`.
+A API oficial usa `OFFICIAL_DATABASE_URL` para sua própria conexão.
+
+Ao conferir partidas, o backend compara data, rodada, confronto, participantes,
+minutos, abates e vitória com os dados oficiais. Os resultados são persistidos
+como `verificado`, `divergente` ou `erro_api`. Um ID inexistente no site oficial
+é uma divergência; falhas de conexão e indisponibilidade são erros de API.
+O CSV de exemplo antigo contém IDs `MATCH-*`, ausentes no SQL Fortnite; para
+uma conferência positiva, importe um CSV com os IDs `FN-2026-*` e os dados correspondentes.
+
+A simulação mantém latência de 2 a 10 segundos e 15% de falhas temporárias.
+O cliente faz até três tentativas, com timeout e até cinco partidas em paralelo.
+Para um ambiente de teste sem atraso ou falhas:
+
+```bash
+OFFICIAL_MIN_DELAY=0 OFFICIAL_MAX_DELAY=0 OFFICIAL_FAILURE_RATE=0 docker compose up -d official-api
+```
+
+Para restaurar os padrões, execute `docker compose up -d official-api` sem
+essas variáveis. A inicialização do SQL ocorre somente com um volume novo;
+reiniciar os containers não reinsere os registros. Alterar o SQL após a primeira
+carga não atualiza automaticamente o banco existente.

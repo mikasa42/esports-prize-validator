@@ -1,40 +1,47 @@
-import random
-import time
+"""Cliente HTTP da API oficial simulada; não acessa seu banco diretamente."""
 import logging
+import os
+import time
+from urllib.parse import quote
+
+import requests
 
 logger = logging.getLogger(__name__)
+
+
+class PartidaNaoEncontrada(Exception):
+    pass
+
+
+class APIOficialIndisponivel(Exception):
+    pass
+
 
 class OficialApiSimulator:
     @staticmethod
     def consultar_partida(match_id_externo: str, max_tentativas: int = 3):
-        """
-        Simula a consulta ao site oficial do jogo por ID de partida.
-        - Leva de 2 a 10 segundos por tentativa.
-        - Possui falhas simuladas (15% de chance de erro).
-        - Inclui política de retry para resiliência.
-        """
-        tentativa = 0
-        
-        while tentativa < max_tentativas:
-            tentativa += 1
-            # Simula o tempo de resposta entre 2 e 10 segundos exigido pelo desafio
-            delay = random.randint(2, 10)
-            time.sleep(delay)
-            
-            # Simula 15% de chance de o site oficial cair ou não responder
-            if random.random() < 0.15:
-                if tentativa < max_tentativas:
-                    logger.warning(f"Tentativa {tentativa} falhou para a partida {match_id_externo}. Tentando novamente...")
-                    continue
-                else:
-                    raise ConnectionError(f"Erro crítico: O site oficial falhou após {max_tentativas} tentativas para a partida {match_id_externo}.")
-            
-            # Retorna o resultado simulado com sucesso
-            return {
-                "match_id_externo": match_id_externo,
-                "status": "sucesso",
-                "tentativas_realizadas": tentativa,
-                "tempo_resposta_segundos": delay,
-                "verificado": True,
-                "mensagem": "Dados da partida conferidos com o site oficial com sucesso."
-            }
+        if max_tentativas < 1:
+            raise ValueError('É necessário pelo menos uma tentativa.')
+        base = os.environ.get('OFFICIAL_API_URL', 'http://127.0.0.1:8001').rstrip('/')
+        url = f'{base}/api/partidas/{quote(str(match_id_externo), safe="")}'
+        for tentativa in range(1, max_tentativas + 1):
+            try:
+                response = requests.get(url, timeout=(3, 15))
+                if response.status_code == 404:
+                    raise PartidaNaoEncontrada('Partida não encontrada no banco oficial.')
+                response.raise_for_status()
+                result = response.json()
+                if (not isinstance(result, dict) or result.get('match_id_externo') != match_id_externo
+                        or not isinstance(result.get('participantes'), list)
+                        or not all(key in result for key in ('data_partida', 'rodada', 'confronto'))):
+                    raise APIOficialIndisponivel('Resposta inválida da API oficial.')
+                result['tentativas_realizadas'] = tentativa
+                return result
+            except requests.RequestException as err:
+                if tentativa == max_tentativas:
+                    raise APIOficialIndisponivel(
+                        f'API oficial indisponível após {max_tentativas} tentativas.'
+                    ) from err
+                logger.warning('Falha na consulta da partida %s; tentativa %s.', match_id_externo, tentativa)
+                time.sleep(tentativa)
+        raise APIOficialIndisponivel('Não foi possível consultar a API oficial.')

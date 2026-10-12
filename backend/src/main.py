@@ -1,3 +1,5 @@
+from concurrent.futures import ThreadPoolExecutor
+
 import logging
 import json
 import os
@@ -10,7 +12,7 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from src.import_csv import importar_csv_conteudo
 from src.database import engine, partidas
 from src.services.tournament_service import TournamentService
-from src.simulator.api_simulator import OficialApiSimulator
+from src.services.verification_service import verificar_grupo
 
 app = FastAPI(title="PowerRev Tournament API", version="1.0")
 app.add_middleware(
@@ -87,21 +89,11 @@ def verificar_partidas(torneio_id: int = Query(1, ge=1)):
     """
     try:
         df = tournament_service.carregar_dados(torneio_id)
-        match_ids = df['ID Partida'].unique().tolist()
-
-        resultados_verificacao = []
-        erros_encontrados = []
-
-        for match_id in match_ids:
-            try:
-                res = OficialApiSimulator.consultar_partida(match_id)
-                resultados_verificacao.append(res)
-            except Exception as err:
-                erros_encontrados.append({
-                    "match_id_externo": match_id,
-                    "status": "divergente_ou_erro",
-                    "detalhe": str(err)
-                })
+        # Limita a cinco consultas simultâneas para conferir o torneio completo.
+        with ThreadPoolExecutor(max_workers=5) as executor:
+            resultados = list(executor.map(verificar_grupo, df.groupby('ID Partida', sort=False)))
+        resultados_verificacao = [res for res in resultados if res['verificado']]
+        erros_encontrados = [res for res in resultados if not res['verificado']]
 
         with engine.begin() as conn:
             for resultado in resultados_verificacao + erros_encontrados:
@@ -109,11 +101,11 @@ def verificar_partidas(torneio_id: int = Query(1, ge=1)):
                     partidas.c.torneio_id == torneio_id,
                     partidas.c.match_id_externo == resultado['match_id_externo'],
                 ).values(
-                    status_verificacao='verificado' if resultado.get('verificado') else 'erro_api',
+                    status_verificacao=resultado['status'],
                     detalhes_verificacao=json.dumps(resultado, ensure_ascii=False),
                 ))
         return {
-            "total_partidas_verificadas": len(match_ids),
+            "total_partidas_verificadas": len(resultados),
             "sucessos": resultados_verificacao,
             "divergencias_ou_falhas": erros_encontrados,
             "status_geral": "Conferência concluída com sucesso" if not erros_encontrados else "Conferência concluída com divergências"

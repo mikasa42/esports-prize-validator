@@ -19,6 +19,49 @@ services:
       - mysql_data:/var/lib/mysql
       - ./database:/docker-entrypoint-initdb.d # Executa automaticamente scripts .sql na primeira inicialização!
 
+  official-db:
+    image: mysql:8.0
+    container_name: fortnite-official-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: official_rootpassword
+      MYSQL_DATABASE: fortnite_oficial
+      MYSQL_USER: official_user
+      MYSQL_PASSWORD: official_password
+    ports:
+      - "3307:3306"
+    volumes:
+      - official_mysql_data:/var/lib/mysql
+      - ./backend/src/simulator/Partidas_Oficiais_Fortnite.sql:/docker-entrypoint-initdb.d/01-partidas.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  official-api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: fortnite-official-api
+    command: ["uvicorn", "src.simulator.official_api:app", "--host", "0.0.0.0", "--port", "8001"]
+    environment:
+      OFFICIAL_DATABASE_URL: mysql+pymysql://official_user:official_password@official-db:3306/fortnite_oficial
+      OFFICIAL_MIN_DELAY: ${OFFICIAL_MIN_DELAY:-2}
+      OFFICIAL_MAX_DELAY: ${OFFICIAL_MAX_DELAY:-10}
+      OFFICIAL_FAILURE_RATE: ${OFFICIAL_FAILURE_RATE:-0.15}
+    ports:
+      - "8001:8001"
+    depends_on:
+      official-db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/health')"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    restart: always
+
   backend:
     build:
       context: .
@@ -26,12 +69,15 @@ services:
     container_name: tournament-backend
     environment:
       DATABASE_URL: mysql+pymysql://powerrev_user:powerrev_password@db:3306/powerrev_torneios
+      OFFICIAL_API_URL: http://official-api:8001
     ports:
       - "8000:8000"
     volumes:
       - ./database:/database:ro
     depends_on:
       db:
+        condition: service_healthy
+      official-api:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/')"]
@@ -53,4 +99,5 @@ services:
     restart: always
 
 volumes:
+  official_mysql_data:
   mysql_data:
