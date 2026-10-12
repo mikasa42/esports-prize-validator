@@ -8,7 +8,7 @@ function App() {
   const [statusVerificacao, setStatusVerificacao] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:8000";
+  const API_URL = process.env.REACT_APP_API_URL || "";
 
   const carregarDados = async () => {
     try {

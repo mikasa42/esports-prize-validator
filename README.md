@@ -98,5 +98,20 @@ as requisições não releem o CSV. Após alterar o arquivo, execute a carga nov
 
 A conexão padrão usa o MySQL local configurado no Compose. Para outro ambiente,
 defina `DATABASE_URL` (formato `mysql+pymysql://usuario:senha@host:3306/banco`).
-O frontend usa `http://localhost:8000`, configurável por `REACT_APP_API_URL`.
+O frontend consulta `/api` na mesma origem. Em desenvolvimento, o proxy do
+React encaminha para `127.0.0.1:8000`; em containers, o Nginx encaminha para
+`backend:8000` pela rede do Compose.
 Origens permitidas pela API podem ser definidas em `CORS_ORIGINS`, separadas por vírgulas.
+
+### Executar todos os serviços em containers
+
+```bash
+docker compose up -d --build
+docker compose exec backend python -m src.import_csv
+```
+
+Acesse o painel em `http://localhost:3000` e a documentação da API em
+`http://localhost:8000/docs`. De outro dispositivo na rede, substitua
+`localhost` pelo IP da máquina que executa o Docker. O navegador consulta
+`/api` pelo painel na porta 3000; não precisa conhecer o IP dos containers.
+O CSV local está montado no backend; após alterá-lo, repita o comando de carga.
