@@ -71,6 +71,11 @@ npm run build:frontend
 
 ## Simulador externo
 
+Os arquivos em `backend/src/simulator` separam as duas responsabilidades:
+
+- `official_api_client.py`: cliente HTTP usado pelo backend para consultar partidas, validar respostas e repetir chamadas após falhas de comunicação.
+- `official_api_server.py`: servidor FastAPI que simula a API oficial, consulta o MySQL e aplica os atrasos e falhas configurados.
+
 O serviço `official-api` usa `requirements-official.txt`, que adiciona as
 bibliotecas de banco somente à imagem do simulador. `OFFICIAL_DATABASE_URL`
 configura sua conexão ao MySQL. O SQL

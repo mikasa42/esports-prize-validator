@@ -25,7 +25,7 @@ services:
       dockerfile: backend/Dockerfile
       target: official
     container_name: fortnite-official-api
-    command: ["uvicorn", "src.simulator.official_api:app", "--host", "0.0.0.0", "--port", "8001"]
+    command: ["uvicorn", "src.simulator.official_api_server:app", "--host", "0.0.0.0", "--port", "8001"]
     environment:
       OFFICIAL_DATABASE_URL: mysql+pymysql://official_user:official_password@official-db:3306/fortnite_oficial
       OFFICIAL_MIN_DELAY: ${OFFICIAL_MIN_DELAY:-2}
