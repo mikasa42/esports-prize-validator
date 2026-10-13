@@ -18,13 +18,19 @@ Uma SPA permite selecionar o arquivo e o critério de rateio e visualizar partid
 
 ### MySQL restrito ao simulador oficial
 
-O backend deixou de usar MySQL, SQLAlchemy e PyMySQL. Essas bibliotecas pertencem somente à imagem do serviço externo `official-api`, que lê os dados preexistentes do seu próprio MySQL (`official-db`). O backend consulta esse serviço exclusivamente por HTTP, usando `OFFICIAL_API_URL`.
+SQLAlchemy e PyMySQL pertencem somente à imagem do serviço externo `official-api`, que lê os dados preexistentes do seu próprio MySQL (`official-db`). O backend consulta esse serviço exclusivamente por HTTP, usando `OFFICIAL_API_URL`.
 
 Essa separação permite executar o backend sem banco ou bibliotecas de acesso a banco. As consultas não gravam uploads, partidas, respostas ou logs no MySQL. A inicialização dos dados do simulador ocorre separadamente, pelo SQL montado no serviço `official-db`.
 
 ## 2. Arquitetura de consulta
 
-![img_2.png](img_2.png)
+```mermaid
+flowchart LR
+    Usuario[Usuário envia CSV] --> Frontend[Frontend React / Nginx]
+    Frontend --> Backend[Backend FastAPI: consulta e cálculos em memória]
+    Backend --> API[API oficial simulada]
+    API --> MySQL[MySQL oficial: partidas_oficiais]
+```
 
 ### CSV como lista de IDs, sem vínculo com torneio
 
@@ -36,7 +42,7 @@ Os IDs são normalizados quanto a maiúsculas, espaços, caracteres invisíveis 
 
 ### Sem banco ou cache no backend
 
-A arquitetura anterior importava CSVs vinculados a torneios e, posteriormente, buscava partidas no banco ou em um cache antes de consultar a API. Esse fluxo foi substituído por consultas diretas à API em cada envio. As rotas antigas de importação, classificação por torneio, premiação por torneio e verificação de dados persistidos foram removidas.
+Cada envio consulta diretamente a API oficial para obter os dados das partidas solicitadas. A classificação e a premiação são calculadas em memória a partir dessas respostas.
 
 A decisão elimina conflitos de IDs entre torneios e a necessidade de manter dados locais sincronizados. O custo é depender da disponibilidade e do tempo de resposta da API em todas as consultas; não há histórico salvo para reabrir resultados anteriores.
 
