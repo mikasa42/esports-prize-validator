@@ -73,7 +73,7 @@ npm run build:frontend
 Os arquivos em `backend/src/simulator` separam as duas responsabilidades:
 
 - `official_api_client.py`: cliente HTTP usado pelo backend para consultar partidas, validar respostas e repetir chamadas após falhas de comunicação.
-- `official_api_server.py`: servidor FastAPI que simula a API oficial, lê o JSON e aplica os atrasos e falhas configurados.
+- `official_api_server.py`: servidor FastAPI que simula a API oficial, lê o JSON e responde sem atrasos ou falhas artificiais.
 
 O serviço `official-api` lê `backend/src/simulator/Partidas_oficiais.json`,
 montado no container em modo somente leitura. `OFFICIAL_DATA_PATH` permite
@@ -86,27 +86,11 @@ A data da partida vem de `matchDate` e os minutos de cada jogador vêm de
 - Lista: `GET http://localhost:8001/api/partidas` (paginação por `limit` e `offset`).
 - Partida: `GET http://localhost:8001/api/partidas/MATCH-1001`.
 
-A simulação tem latência de 2 a 10 segundos e 5% de falhas temporárias.
-O backend tenta até três vezes por linha, com timeout. As consultas são sequenciais,
-na ordem do CSV, sem paralelismo. Use os IDs `MATCH-*` presentes no campo `matchId` do JSON.
-
-Para testar sem atrasos ou falhas simuladas:
-
-```bash
-OFFICIAL_MIN_DELAY=0 OFFICIAL_MAX_DELAY=0 OFFICIAL_FAILURE_RATE=0 docker compose up -d official-api
-```
-
-## Comparar desempenho
-
-Para testar com o atraso simulado de 2 a 10 segundos e uma consulta por linha:
-
-```bash
-docker compose -f docker-compose.yml -f docker-compose.test.yml up -d --build
-```
-
-Essa configuração mantém a taxa de falhas simuladas de 5%. Novas tentativas
-podem aumentar o tempo na primeira consulta. Repetições usam o banco; os cálculos
-de classificação e premiações consideram cada partida uma única vez.
+A API responde sem atrasos ou falhas artificiais. O campo
+`tempo_resposta_segundos` mede o processamento real da consulta.
+O backend tenta até três vezes em caso de falhas de comunicação.
+As consultas são sequenciais, na ordem do CSV. Use os IDs `MATCH-*`
+presentes no campo `matchId` do JSON. Consultas posteriores usam o banco.
 
 ## Testes
 

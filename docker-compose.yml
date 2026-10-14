@@ -26,9 +26,6 @@ services:
     command: ["uvicorn", "src.simulator.official_api_server:app", "--host", "0.0.0.0", "--port", "8001"]
     environment:
       OFFICIAL_DATA_PATH: /app/src/simulator/Partidas_oficiais.json
-      OFFICIAL_MIN_DELAY: ${OFFICIAL_MIN_DELAY:-2}
-      OFFICIAL_MAX_DELAY: ${OFFICIAL_MAX_DELAY:-10}
-      OFFICIAL_FAILURE_RATE: ${OFFICIAL_FAILURE_RATE:-0.05}
     ports:
       - "8001:8001"
     volumes:

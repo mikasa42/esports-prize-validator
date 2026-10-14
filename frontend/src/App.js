@@ -59,7 +59,7 @@ function App() {
       </header>
       <section style={{ margin: '25px 0', padding: '20px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px' }}>
         <h2>Consultar partidas pelo CSV</h2>
-        <p>Envie um CSV com a coluna id_partida ou ID Partida. Cada linha será consultada na API oficial, uma por vez, inclusive IDs repetidos. Os dados não são salvos.</p>
+        <p>Envie um CSV com a coluna id_partida ou ID Partida. As partidas são consultadas na API oficial e salvas para consultas posteriores.</p>
         <form onSubmit={consultarCsv} style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', alignItems: 'end' }}>
           <label style={{ display: 'grid', gap: '6px' }}>
             Arquivo CSV (UTF-8, até 10 MB)
@@ -90,7 +90,7 @@ function App() {
         {resultado?.falhas.length > 0 && <p>As partidas encontradas estão disponíveis abaixo. Consulte novamente para completar a classificação e as premiações.</p>}
         {resultado?.partidas.map((partida, index) => (
           <details key={`${index}-${partida.match_id_externo}`} style={{ marginTop: '16px' }} open>
-            <summary>{partida.match_id_externo}: {partida.confronto} ({partida.data_partida}, rodada {partida.rodada}) — API oficial</summary>
+            <summary>{partida.match_id_externo}: {partida.confronto} ({partida.data_partida}, rodada {partida.rodada}) — {partida.origem === 'banco' ? 'Banco local' : 'API oficial'}</summary>
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', textAlign: 'left', marginTop: '10px' }}>
                 <thead><tr><th>Time / Jogador</th><th>Minutos</th><th>Abates</th><th>Venceu?</th></tr></thead>
