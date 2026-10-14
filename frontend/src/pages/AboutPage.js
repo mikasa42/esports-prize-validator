@@ -1,0 +1,15 @@
+import React from 'react';
+import Icon from '../components/Icon';
+
+export default function AboutPage({ navigate }) {
+  return <>
+    <section className="about-hero">
+      <div className="hero-copy"><span className="eyebrow"><span className="status-dot" /> TORNEIOS, COM CLAREZA</span><h1>Cada partida conta.<br /><span>Cada jogador também.</span></h1><p>Transforme os IDs da sua planilha em resultados oficiais, classificação e uma distribuição de prêmios transparente.</p><div className="hero-actions"><button className="button button-primary" onClick={() => navigate('nova')}>Fazer uma consulta<Icon name="arrow" size={18} /></button><button className="button button-text" onClick={() => navigate('historico')}>Explorar histórico<Icon name="clock" size={18} /></button></div><span className="hero-footnote">PowerRev Tech Challenge · Painel da Maria Clara</span></div>
+      <div className="hero-visual" aria-label="Prêmio total de dez mil reais, dividido entre os três primeiros times"><div className="visual-top"><span className="eyebrow">O JOGO É COLETIVO.</span><Icon name="trophy" size={25} /></div><span className="visual-label">O prêmio também.</span><strong className="visual-amount">R$ 10.000<span>,00</span></strong><div className="podium-art"><div className="podium-second"><span>02</span><strong>30%</strong></div><div className="podium-first"><span>01</span><strong>50%</strong><span className="podium-crown">1º LUGAR</span></div><div className="podium-third"><span>03</span><strong>20%</strong></div></div><div className="visual-bottom"><span>Você escolhe o critério.</span><strong>Minutos ou abates<Icon name="arrow" size={16} /></strong></div></div>
+    </section>
+    <section className="how-section" aria-labelledby="how-title"><div className="section-intro"><div><span className="eyebrow">DA PLANILHA AO PÓDIO</span><h2 id="how-title">Um fluxo simples. Dados oficiais.</h2></div><p>Consulte uma vez. Volte quando precisar.</p></div><div className="steps-grid">
+      {[['01', 'file', 'Envie seu CSV', 'Uma coluna com os IDs das partidas é suficiente. Escolha o rateio por minutos ou abates.'], ['02', 'grid', 'Confira as partidas', 'Buscamos os resultados oficiais e mostramos as estatísticas de todos os jogadores.'], ['03', 'trophy', 'Veja a distribuição', 'Os times são classificados por vitórias. O prêmio de cada time é dividido proporcionalmente entre seus jogadores.']].map(([number, icon, title, text]) => <article className="step-card" key={number}><div className="step-top"><Icon name={icon} size={22} /><span>{number}</span></div><h3>{title}</h3><p>{text}</p></article>)}
+    </div></section>
+    <section className="about-note"><div className="note-icon"><Icon name="clock" size={22} /></div><div><h3>Seu histórico fica disponível.</h3><p>As partidas consultadas são salvas. Acesse seus resultados novamente pela aba Histórico, sem enviar outro arquivo.</p></div><button className="button button-text" onClick={() => navigate('historico')}>Ver histórico<Icon name="arrow" size={18} /></button></section>
+  </>;
+}

@@ -39,6 +39,34 @@ def buscar_partida(match_id_externo):
         connection.close()
 
 
+def listar_partidas_salvas(limit=5, offset=0, busca=''):
+    """Lista somente respostas já persistidas, com paginação no banco."""
+    connection = conectar()
+    try:
+        with connection.cursor() as cursor:
+            filtro = ''
+            params = ()
+            if busca:
+                filtro = '''WHERE r.id_partida_externo LIKE %s
+                    OR JSON_UNQUOTE(JSON_EXTRACT(r.resposta, '$.confronto')) LIKE %s'''
+                termo = f'%{busca}%'
+                params = (termo, termo)
+            cursor.execute(f'SELECT COUNT(*) AS total FROM respostas_oficiais r {filtro}', params)
+            total = cursor.fetchone()['total']
+            cursor.execute(
+                f'''SELECT r.resposta FROM respostas_oficiais r
+                    JOIN partidas p ON p.id_partida_externo = r.id_partida_externo
+                    {filtro} ORDER BY p.id DESC LIMIT %s OFFSET %s''',
+                (*params, limit, offset),
+            )
+            partidas = [{**json.loads(row['resposta']), 'origem': 'banco'} for row in cursor.fetchall()]
+            return {'partidas': partidas, 'total': total, 'limit': limit, 'offset': offset}
+    except pymysql.MySQLError as err:
+        raise BancoIndisponivel('Não foi possível consultar o histórico.') from err
+    finally:
+        connection.close()
+
+
 def salvar_partida(partida_data):
     """Persiste a resposta completa e as estatísticas em uma única transação."""
     connection = conectar()

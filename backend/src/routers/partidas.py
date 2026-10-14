@@ -1,13 +1,25 @@
 """Entrada HTTP para consultas de partidas e uploads CSV."""
 from typing import Literal
 
-from fastapi import APIRouter, File, Form, HTTPException, UploadFile
-from src.repositories.match_repository import BancoIndisponivel
+from fastapi import APIRouter, File, Form, HTTPException, UploadFile, Query
+from src.repositories.match_repository import BancoIndisponivel, listar_partidas_salvas
 from src.services.match_lookup_service import consultar_csv, consultar_id
 
 router = APIRouter(prefix='/api', tags=['Partidas'])
 
 MAX_CSV_BYTES = 10 * 1024 * 1024
+
+
+@router.get('/historico')
+def consultar_historico(
+    limit: int = Query(5, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+    busca: str = Query('', max_length=100),
+):
+    try:
+        return listar_partidas_salvas(limit=limit, offset=offset, busca=busca.strip())
+    except BancoIndisponivel as err:
+        raise HTTPException(status_code=503, detail=str(err))
 
 
 @router.get('/partidas/{match_id}')

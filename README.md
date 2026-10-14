@@ -20,6 +20,19 @@ as respostas validadas em seu MySQL, no volume `backend_mysql_data`.
 O volume conserva as partidas após recriar containers. As tabelas são
 verificadas e criadas na inicialização do backend, uma vez por processo.
 
+## Navegação do painel
+
+O menu horizontal oferece três abas:
+
+- **Sobre o site:** apresenta o fluxo e as regras de premiação.
+- **Histórico:** lista as partidas já salvas no banco, com busca por ID ou confronto.
+- **Nova consulta:** permite enviar ou arrastar um CSV e escolher o critério de rateio.
+
+As tabelas de partidas têm páginas de 5, 10 ou 20 itens. Use **Ver jogadores**
+para abrir as estatísticas de uma partida. O histórico pagina no servidor por
+`GET /api/historico?limit=5&offset=0&busca=`, sem consultar a API oficial.
+Cada partida aparece uma vez no histórico; não é um registro de cada upload.
+
 ## Consultar um CSV
 
 Selecione um CSV UTF-8 de até 10 MB, escolha o critério de rateio e clique
