@@ -1,0 +1,17 @@
+{
+  "name": "esports-prize-validator",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=18",
+    "npm": ">=9"
+  },
+  "scripts": {
+    "setup": "bash scripts/setup.sh",
+    "dev": "bash scripts/dev.sh",
+    "dev:backend": "cd backend && ../.venv/bin/python -m uvicorn src.main:app --reload",
+    "dev:frontend": "npm --prefix frontend start",
+    "build:frontend": "npm --prefix frontend run build",
+    "check:backend": ".venv/bin/python -m pip check"
+  }
+}

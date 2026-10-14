@@ -17,7 +17,8 @@ docker compose up -d --build
 
 O Compose inicia o backend, o frontend e o simulador oficial. O simulador lê o arquivo `backend/src/simulator/Partidas_oficiais.json`. O backend consulta a API por HTTP e salva
 as respostas validadas em seu MySQL, no volume `backend_mysql_data`.
-O volume conserva as partidas após recriar containers.
+O volume conserva as partidas após recriar containers. As tabelas são
+verificadas e criadas na inicialização do backend, uma vez por processo.
 
 ## Consultar um CSV
 
