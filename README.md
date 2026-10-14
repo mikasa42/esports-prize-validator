@@ -2,8 +2,8 @@
 
 O painel lê os IDs de um CSV, consulta a API oficial e mostra as partidas,
 seus jogadores, a classificação por vitórias e o rateio de R$ 10.000,00
-por minutos jogados ou abates. O backend não usa banco de dados, não salva
-uploads ou respostas e não mantém cache. Cada envio faz novas consultas à API.
+por minutos jogados ou abates. O backend salva partidas válidas em MySQL.
+Consultas posteriores reutilizam esses dados, mesmo com a API oficial offline.
 
 ## Executar com Docker
 
@@ -15,10 +15,10 @@ docker compose up -d --build
 - Backend: http://localhost:8000/docs
 - API oficial simulada: http://localhost:8001/docs
 
-O Compose inicia o backend, o frontend e o simulador oficial. Apenas o
-simulador tem um MySQL próprio (`official-db`), que fornece os dados já
-existentes da API externa. O backend acessa esse serviço por HTTP e não
-possui conexão ou dependência desse banco. As consultas não gravam dados.
+O Compose inicia o backend, o frontend e o simulador oficial. O simulador tem
+um MySQL próprio (`official-db`). O backend consulta a API por HTTP e salva
+as respostas validadas em seu MySQL, no volume `backend_mysql_data`.
+O volume conserva as partidas após recriar containers.
 
 ## Consultar um CSV
 
@@ -33,7 +33,7 @@ FN-2026-R1-M1001
 FN-2026-R1-M1002
 ```
 
-Os IDs são normalizados. Cada linha gera uma consulta sequencial, inclusive IDs repetidos. Hífens, espaços,
+Os IDs são normalizados. Cada linha é resolvida sequencialmente. IDs já salvos não consultam a API. Hífens, espaços,
 maiúsculas e zeros extras são normalizados: `fn–2026–r01–m01002` corresponde a
 `FN-2026-R1-M1002`. A tela mostra todos os jogadores retornados pela API.
 
@@ -52,7 +52,7 @@ Pré-requisitos: Python 3.10 a 3.12, Node.js 18+, npm 9+ e Bash.
 ```bash
 npm run setup
 # Inicia o simulador externo usado pelo backend local:
-docker compose up -d official-db official-api
+docker compose up -d backend-db official-db official-api
 npm run dev
 ```
 
@@ -77,7 +77,7 @@ Os arquivos em `backend/src/simulator` separam as duas responsabilidades:
 - `official_api_server.py`: servidor FastAPI que simula a API oficial, consulta o MySQL e aplica os atrasos e falhas configurados.
 
 O serviço `official-api` usa `requirements-official.txt`, que adiciona as
-bibliotecas de banco somente à imagem do simulador. `OFFICIAL_DATABASE_URL`
+SQLAlchemy à imagem do simulador. PyMySQL também é usado pelo backend. `OFFICIAL_DATABASE_URL`
 configura sua conexão ao MySQL. O SQL
 `backend/src/simulator/Partidas_Oficiais_Fortnite.sql` inicializa 400
 participações de jogadores em 50 partidas no primeiro uso do volume
@@ -106,7 +106,7 @@ docker compose -f docker-compose.yml -f docker-compose.test.yml up -d --build
 ```
 
 Essa configuração mantém a taxa de falhas simuladas de 5%. Novas tentativas
-podem aumentar o tempo. Repetições de IDs geram novas consultas, mas os cálculos
+podem aumentar o tempo na primeira consulta. Repetições usam o banco; os cálculos
 de classificação e premiações consideram cada partida uma única vez.
 
 ## Testes
@@ -119,5 +119,40 @@ cd backend
 ../.venv/bin/python -m unittest discover -s tests
 ```
 
-Os testes da consulta confirmam o funcionamento sem SQLAlchemy ou PyMySQL,
-o uso da API em cada upload, as consultas sequenciais por linha e os resultados parciais.
+Os testes da consulta verificam
+a reutilização das partidas persistidas, as consultas sequenciais e os resultados parciais.
+
+## Persistência e consulta por ID
+
+`GET /api/partidas/FN-2026-R1-M1001` retorna uma partida. Se ela ainda não
+estiver salva, o backend consulta a API, valida e persiste sua resposta.
+O mesmo fluxo é usado pelo upload CSV. O campo `origem` indica `api` na
+primeira consulta e `banco` nas seguintes. Erros e partidas inválidas não
+são salvos, permitindo novas tentativas.
+
+O backend usa um MySQL próprio, separado do banco do simulador. A tabela
+`partidas` é definida em `backend/src/database/schema.sql` e criada automaticamente
+na primeira consulta. Ela guarda o ID, a resposta oficial em JSON e a data de gravação.
+
+Em desenvolvimento local, execute `docker compose up -d backend-db`.
+A conexão padrão é `127.0.0.1:3306`, banco `esports_backend`, usuário
+`backend_user` e senha `backend_password`. Configure `MYSQL_HOST`, `MYSQL_PORT`,
+`MYSQL_DATABASE`, `MYSQL_USER` e `MYSQL_PASSWORD` para usar outro servidor.
+No Compose, as credenciais podem ser alteradas por `BACKEND_MYSQL_DATABASE`,
+`BACKEND_MYSQL_USER`, `BACKEND_MYSQL_PASSWORD` e `BACKEND_MYSQL_ROOT_PASSWORD`.
+
+As partidas não expiram automaticamente; o banco representa a primeira resposta
+válida obtida para cada ID normalizado. O histórico é compartilhado, pois o projeto
+ainda não possui login por usuário. Falhas de banco retornam HTTP 503.
+Arquivos SQLite antigos não são importados automaticamente.
+
+Os testes comuns usam um repositório simulado. Para executar também a persistência
+real entre processos, crie um banco MySQL exclusivo de testes e execute:
+
+```bash
+cd backend
+MYSQL_TEST_DATABASE=esports_backend_test ../.venv/bin/python -m unittest discover -s tests
+```
+
+Esse modo limpa a tabela `partidas` no banco indicado antes de cada teste;
+use apenas um banco dedicado a testes e conceda acesso ao usuário configurado.

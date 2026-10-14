@@ -1,4 +1,22 @@
 services:
+  backend-db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${BACKEND_MYSQL_ROOT_PASSWORD:-backend_rootpassword}
+      MYSQL_DATABASE: ${BACKEND_MYSQL_DATABASE:-esports_backend}
+      MYSQL_USER: ${BACKEND_MYSQL_USER:-backend_user}
+      MYSQL_PASSWORD: ${BACKEND_MYSQL_PASSWORD:-backend_password}
+    ports:
+      - "3306:3306"
+    volumes:
+      - backend_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
   official-db:
     image: mysql:8.0
     container_name: fortnite-official-mysql
@@ -50,9 +68,16 @@ services:
     container_name: tournament-backend
     environment:
       OFFICIAL_API_URL: http://official-api:8001
+      MYSQL_HOST: backend-db
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: ${BACKEND_MYSQL_DATABASE:-esports_backend}
+      MYSQL_USER: ${BACKEND_MYSQL_USER:-backend_user}
+      MYSQL_PASSWORD: ${BACKEND_MYSQL_PASSWORD:-backend_password}
     ports:
       - "8000:8000"
     depends_on:
+      backend-db:
+        condition: service_healthy
       official-api:
         condition: service_healthy
     healthcheck:
@@ -75,4 +100,5 @@ services:
     restart: always
 
 volumes:
+  backend_mysql_data:
   official_mysql_data:

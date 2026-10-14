@@ -1,6 +1,12 @@
 # DECISIONS.md — Registro de Decisões Arquiteturais e Trade-offs
 
-Este documento registra a arquitetura atual, as alternativas consideradas e os limites de escopo do desafio da PowerRev.
+Este documento registra decisões do desafio da PowerRev.
+
+## Atualização: persistência de partidas
+
+O backend agora usa MySQL para armazenar a primeira resposta oficial válida de cada ID normalizado. As consultas por CSV e por `GET /api/partidas/{match_id}` procuram primeiro no banco e só consultam a API quando não há registro. Erros não são persistidos. O volume Docker `backend_mysql_data` mantém os dados entre reinicializações. Não há expiração automática ou isolamento por usuário. Essa decisão substitui as descrições abaixo de processamento sem persistência e chamadas repetidas para IDs já consultados.
+
+O restante do documento registra a arquitetura anterior à adição do banco.
 
 ## 1. Stack tecnológica
 

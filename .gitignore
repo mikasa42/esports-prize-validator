@@ -1,5 +1,6 @@
 #Pasta venv
 .venv/
+backend/data/
 # Dependências do Node
 frontend/node_modules/
 node_modules/
