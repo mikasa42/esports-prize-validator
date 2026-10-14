@@ -1,0 +1,1252 @@
+[
+  {
+    "matchId": "match-1001",
+    "round": 1,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-01T14:00:00Z",
+    "teamA": {
+      "name": "FURIA",
+      "players": [
+        { "nickname": "chelo", "kills": 12, "deaths": 15, "assists": 5, "minutesPlayed": 24 },
+        { "nickname": "FalleN", "kills": 15, "deaths": 11, "assists": 10, "minutesPlayed": 28 },
+        { "nickname": "yuurih", "kills": 18, "deaths": 14, "assists": 8, "minutesPlayed": 32 },
+        { "nickname": "KSCERATO", "kills": 22, "deaths": 12, "assists": 6, "minutesPlayed": 36 }
+      ]
+    },
+    "teamB": {
+      "name": "NAVI",
+      "players": [
+        { "nickname": "Aleksib", "kills": 8, "deaths": 16, "assists": 12, "minutesPlayed": 23 },
+        { "nickname": "jl", "kills": 11, "deaths": 17, "assists": 6, "minutesPlayed": 27 },
+        { "nickname": "iM", "kills": 14, "deaths": 18, "assists": 7, "minutesPlayed": 31 },
+        { "nickname": "b1t", "kills": 19, "deaths": 16, "assists": 4, "minutesPlayed": 35 }
+      ]
+    },
+    "winnerTeam": "FURIA"
+  },
+  {
+    "matchId": "match-1002",
+    "round": 1,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-01T15:15:00Z",
+    "teamA": {
+      "name": "MIBR",
+      "players": [
+        { "nickname": "brnz4n", "kills": 13, "deaths": 16, "assists": 7, "minutesPlayed": 25 },
+        { "nickname": "exit", "kills": 16, "deaths": 14, "assists": 5, "minutesPlayed": 29 },
+        { "nickname": "saffee", "kills": 18, "deaths": 12, "assists": 4, "minutesPlayed": 33 },
+        { "nickname": "insani", "kills": 24, "deaths": 15, "assists": 3, "minutesPlayed": 37 }
+      ]
+    },
+    "teamB": {
+      "name": "Pain Gaming",
+      "players": [
+        { "nickname": "snow", "kills": 11, "deaths": 17, "assists": 5, "minutesPlayed": 22 },
+        { "nickname": "kauez", "kills": 14, "deaths": 19, "assists": 6, "minutesPlayed": 26 },
+        { "nickname": "nqz", "kills": 15, "deaths": 17, "assists": 2, "minutesPlayed": 30 },
+        { "nickname": "biguzera", "kills": 17, "deaths": 18, "assists": 9, "minutesPlayed": 34 }
+      ]
+    },
+    "winnerTeam": "MIBR"
+  },
+  {
+    "matchId": "match-1003",
+    "round": 1,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-01T16:30:00Z",
+    "teamA": {
+      "name": "Liquid",
+      "players": [
+        { "nickname": "jks", "kills": 14, "deaths": 12, "assists": 6, "minutesPlayed": 23 },
+        { "nickname": "YEKINDAR", "kills": 17, "deaths": 16, "assists": 4, "minutesPlayed": 27 },
+        { "nickname": "NAF", "kills": 20, "deaths": 10, "assists": 8, "minutesPlayed": 31 },
+        { "nickname": "ultimate", "kills": 21, "deaths": 11, "assists": 3, "minutesPlayed": 35 }
+      ]
+    },
+    "teamB": {
+      "name": "FaZe Clan",
+      "players": [
+        { "nickname": "karrigan", "kills": 9, "deaths": 19, "assists": 11, "minutesPlayed": 24 },
+        { "nickname": "ropz", "kills": 11, "deaths": 18, "assists": 4, "minutesPlayed": 28 },
+        { "nickname": "rain", "kills": 13, "deaths": 18, "assists": 7, "minutesPlayed": 32 },
+        { "nickname": "frozen", "kills": 16, "deaths": 17, "assists": 5, "minutesPlayed": 36 }
+      ]
+    },
+    "winnerTeam": "Liquid"
+  },
+  {
+    "matchId": "match-1004",
+    "round": 1,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-01T17:45:00Z",
+    "teamA": {
+      "name": "G2 Esports",
+      "players": [
+        { "nickname": "huNter-", "kills": 15, "deaths": 14, "assists": 6, "minutesPlayed": 22 },
+        { "nickname": "malbsMd", "kills": 18, "deaths": 12, "assists": 4, "minutesPlayed": 26 },
+        { "nickname": "NiKo", "kills": 22, "deaths": 13, "assists": 7, "minutesPlayed": 30 },
+        { "nickname": "m0NESY", "kills": 28, "deaths": 10, "assists": 5, "minutesPlayed": 34 }
+      ]
+    },
+    "teamB": {
+      "name": "Vitality",
+      "players": [
+        { "nickname": "flameZ", "kills": 7, "deaths": 22, "assists": 2, "minutesPlayed": 21 },
+        { "nickname": "apEX", "kills": 10, "deaths": 21, "assists": 9, "minutesPlayed": 25 },
+        { "nickname": "spinx", "kills": 12, "deaths": 22, "assists": 3, "minutesPlayed": 29 },
+        { "nickname": "ZywOo", "kills": 20, "deaths": 18, "assists": 4, "minutesPlayed": 33 }
+      ]
+    },
+    "winnerTeam": "G2 Esports"
+  },
+  {
+    "matchId": "match-1005",
+    "round": 1,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-01T19:00:00Z",
+    "teamA": {
+      "name": "Astralis",
+      "players": [
+        { "nickname": "staehr", "kills": 14, "deaths": 15, "assists": 6, "minutesPlayed": 25 },
+        { "nickname": "jabbi", "kills": 16, "deaths": 14, "assists": 5, "minutesPlayed": 29 },
+        { "nickname": "device", "kills": 19, "deaths": 13, "assists": 4, "minutesPlayed": 33 },
+        { "nickname": "blameF", "kills": 18, "deaths": 12, "assists": 7, "minutesPlayed": 37 }
+      ]
+    },
+    "teamB": {
+      "name": "Heroic",
+      "players": [
+        { "nickname": "sjuush", "kills": 12, "deaths": 17, "assists": 5, "minutesPlayed": 24 },
+        { "nickname": "degster", "kills": 13, "deaths": 16, "assists": 2, "minutesPlayed": 28 },
+        { "nickname": "Nertz", "kills": 14, "deaths": 16, "assists": 3, "minutesPlayed": 32 },
+        { "nickname": "teses", "kills": 15, "deaths": 18, "assists": 4, "minutesPlayed": 36 }
+      ]
+    },
+    "winnerTeam": "Astralis"
+  },
+  {
+    "matchId": "match-1006",
+    "round": 1,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-01T20:15:00Z",
+    "teamA": {
+      "name": "MOUZ",
+      "players": [
+        { "nickname": "siuhy", "kills": 12, "deaths": 13, "assists": 11, "minutesPlayed": 23 },
+        { "nickname": "xertioN", "kills": 17, "deaths": 14, "assists": 6, "minutesPlayed": 27 },
+        { "nickname": "Jimpphat", "kills": 19, "deaths": 9, "assists": 5, "minutesPlayed": 31 },
+        { "nickname": "torzsi", "kills": 20, "deaths": 11, "assists": 3, "minutesPlayed": 35 }
+      ]
+    },
+    "teamB": {
+      "name": "Virtus.pro",
+      "players": [
+        { "nickname": "fame", "kills": 10, "deaths": 17, "assists": 5, "minutesPlayed": 22 },
+        { "nickname": "Jame", "kills": 11, "deaths": 16, "assists": 4, "minutesPlayed": 26 },
+        { "nickname": "electroNic", "kills": 13, "deaths": 17, "assists": 2, "minutesPlayed": 30 },
+        { "nickname": "FL1T", "kills": 13, "deaths": 18, "assists": 3, "minutesPlayed": 34 }
+      ]
+    },
+    "winnerTeam": "MOUZ"
+  },
+  {
+    "matchId": "match-1007",
+    "round": 1,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-01T21:30:00Z",
+    "teamA": {
+      "name": "Spirit",
+      "players": [
+        { "nickname": "chopper", "kills": 9, "deaths": 13, "assists": 10, "minutesPlayed": 20 },
+        { "nickname": "magixx", "kills": 10, "deaths": 11, "assists": 7, "minutesPlayed": 24 },
+        { "nickname": "sh1ro", "kills": 18, "deaths": 8, "assists": 5, "minutesPlayed": 28 },
+        { "nickname": "donk", "kills": 31, "deaths": 12, "assists": 4, "minutesPlayed": 32 }
+      ]
+    },
+    "teamB": {
+      "name": "Complexity",
+      "players": [
+        { "nickname": "JT", "kills": 8, "deaths": 18, "assists": 6, "minutesPlayed": 21 },
+        { "nickname": "floppy", "kills": 11, "deaths": 17, "assists": 3, "minutesPlayed": 25 },
+        { "nickname": "hallzerk", "kills": 12, "deaths": 16, "assists": 2, "minutesPlayed": 29 },
+        { "nickname": "Grim", "kills": 13, "deaths": 17, "assists": 4, "minutesPlayed": 33 }
+      ]
+    },
+    "winnerTeam": "Spirit"
+  },
+  {
+    "matchId": "match-1008",
+    "round": 1,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-01T22:45:00Z",
+    "teamA": {
+      "name": "Eternal Fire",
+      "players": [
+        { "nickname": "MAJ3R", "kills": 11, "deaths": 16, "assists": 9, "minutesPlayed": 22 },
+        { "nickname": "Calyx", "kills": 14, "deaths": 13, "assists": 4, "minutesPlayed": 26 },
+        { "nickname": "Wicadia", "kills": 16, "deaths": 15, "assists": 6, "minutesPlayed": 30 },
+        { "nickname": "XANTARES", "kills": 23, "deaths": 14, "assists": 5, "minutesPlayed": 34 }
+      ]
+    },
+    "teamB": {
+      "name": "BIG",
+      "players": [
+        { "nickname": "syrsoN", "kills": 14, "deaths": 15, "assists": 2, "minutesPlayed": 23 },
+        { "nickname": "prodon", "kills": 13, "deaths": 16, "assists": 3, "minutesPlayed": 27 },
+        { "nickname": "tabseN", "kills": 15, "deaths": 17, "assists": 8, "minutesPlayed": 31 },
+        { "nickname": "Krimbo", "kills": 16, "deaths": 16, "assists": 5, "minutesPlayed": 35 }
+      ]
+    },
+    "winnerTeam": "Eternal Fire"
+  },
+  {
+    "matchId": "match-1009",
+    "round": 1,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-02T14:00:00Z",
+    "teamA": {
+      "name": "Fnatic",
+      "players": [
+        { "nickname": "bodyy", "kills": 12, "deaths": 18, "assists": 8, "minutesPlayed": 24 },
+        { "nickname": "KRIMZ", "kills": 15, "deaths": 16, "assists": 7, "minutesPlayed": 28 },
+        { "nickname": "Brollan", "kills": 16, "deaths": 14, "assists": 5, "minutesPlayed": 32 },
+        { "nickname": "matys", "kills": 18, "deaths": 17, "assists": 4, "minutesPlayed": 36 }
+      ]
+    },
+    "teamB": {
+      "name": "NIP",
+      "players": [
+        { "nickname": "alex", "kills": 11, "deaths": 16, "assists": 9, "minutesPlayed": 23 },
+        { "nickname": "isak", "kills": 14, "deaths": 15, "assists": 5, "minutesPlayed": 27 },
+        { "nickname": "rez", "kills": 20, "deaths": 14, "assists": 3, "minutesPlayed": 31 },
+        { "nickname": "r1nkle", "kills": 22, "deaths": 12, "assists": 2, "minutesPlayed": 35 }
+      ]
+    },
+    "winnerTeam": "NIP"
+  },
+  {
+    "matchId": "match-1010",
+    "round": 1,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-02T15:15:00Z",
+    "teamA": {
+      "name": "Imperial",
+      "players": [
+        { "nickname": "decenty", "kills": 13, "deaths": 16, "assists": 4, "minutesPlayed": 21 },
+        { "nickname": "VINI", "kills": 14, "deaths": 16, "assists": 8, "minutesPlayed": 25 },
+        { "nickname": "noway", "kills": 16, "deaths": 15, "assists": 6, "minutesPlayed": 29 },
+        { "nickname": "felps", "kills": 19, "deaths": 17, "assists": 5, "minutesPlayed": 33 }
+      ]
+    },
+    "teamB": {
+      "name": "9z Team",
+      "players": [
+        { "nickname": "buda", "kills": 14, "deaths": 16, "assists": 5, "minutesPlayed": 20 },
+        { "nickname": "max", "kills": 15, "deaths": 15, "assists": 7, "minutesPlayed": 24 },
+        { "nickname": "HUASOPEEK", "kills": 18, "deaths": 14, "assists": 3, "minutesPlayed": 28 },
+        { "nickname": "dgt", "kills": 21, "deaths": 13, "assists": 4, "minutesPlayed": 32 }
+      ]
+    },
+    "winnerTeam": "9z Team"
+  },
+  {
+    "matchId": "match-1011",
+    "round": 2,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-03T14:00:00Z",
+    "teamA": {
+      "name": "FURIA",
+      "players": [
+        { "nickname": "chelo", "kills": 15, "deaths": 12, "assists": 4, "minutesPlayed": 22 },
+        { "nickname": "FalleN", "kills": 14, "deaths": 10, "assists": 8, "minutesPlayed": 26 },
+        { "nickname": "yuurih", "kills": 16, "deaths": 13, "assists": 7, "minutesPlayed": 30 },
+        { "nickname": "KSCERATO", "kills": 20, "deaths": 11, "assists": 5, "minutesPlayed": 34 }
+      ]
+    },
+    "teamB": {
+      "name": "NAVI",
+      "players": [
+        { "nickname": "Aleksib", "kills": 10, "deaths": 15, "assists": 9, "minutesPlayed": 23 },
+        { "nickname": "jl", "kills": 13, "deaths": 14, "assists": 6, "minutesPlayed": 27 },
+        { "nickname": "iM", "kills": 16, "deaths": 15, "assists": 4, "minutesPlayed": 31 },
+        { "nickname": "b1t", "kills": 17, "deaths": 14, "assists": 5, "minutesPlayed": 35 }
+      ]
+    },
+    "winnerTeam": "FURIA"
+  },
+  {
+    "matchId": "match-1012",
+    "round": 2,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-03T15:15:00Z",
+    "teamA": {
+      "name": "MIBR",
+      "players": [
+        { "nickname": "exit", "kills": 14, "deaths": 13, "assists": 6, "minutesPlayed": 21 },
+        { "nickname": "brnz4n", "kills": 15, "deaths": 15, "assists": 5, "minutesPlayed": 25 },
+        { "nickname": "saffee", "kills": 17, "deaths": 11, "assists": 3, "minutesPlayed": 29 },
+        { "nickname": "insani", "kills": 21, "deaths": 14, "assists": 4, "minutesPlayed": 33 }
+      ]
+    },
+    "teamB": {
+      "name": "Pain Gaming",
+      "players": [
+        { "nickname": "kauez", "kills": 12, "deaths": 18, "assists": 4, "minutesPlayed": 22 },
+        { "nickname": "snow", "kills": 13, "deaths": 18, "assists": 6, "minutesPlayed": 26 },
+        { "nickname": "biguzera", "kills": 15, "deaths": 16, "assists": 7, "minutesPlayed": 30 },
+        { "nickname": "nqz", "kills": 18, "deaths": 15, "assists": 2, "minutesPlayed": 34 }
+      ]
+    },
+    "winnerTeam": "MIBR"
+  },
+  {
+    "matchId": "match-1013",
+    "round": 2,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-03T16:30:00Z",
+    "teamA": {
+      "name": "Liquid",
+      "players": [
+        { "nickname": "jks", "kills": 15, "deaths": 14, "assists": 4, "minutesPlayed": 20 },
+        { "nickname": "YEKINDAR", "kills": 16, "deaths": 15, "assists": 5, "minutesPlayed": 24 },
+        { "nickname": "NAF", "kills": 19, "deaths": 12, "assists": 6, "minutesPlayed": 28 },
+        { "nickname": "ultimate", "kills": 22, "deaths": 13, "assists": 2, "minutesPlayed": 32 }
+      ]
+    },
+    "teamB": {
+      "name": "FaZe Clan",
+      "players": [
+        { "nickname": "karrigan", "kills": 11, "deaths": 17, "assists": 8, "minutesPlayed": 21 },
+        { "nickname": "ropz", "kills": 15, "deaths": 17, "assists": 3, "minutesPlayed": 25 },
+        { "nickname": "rain", "kills": 14, "deaths": 18, "assists": 5, "minutesPlayed": 29 },
+        { "nickname": "frozen", "kills": 17, "deaths": 16, "assists": 6, "minutesPlayed": 33 }
+      ]
+    },
+    "winnerTeam": "Liquid"
+  },
+  {
+    "matchId": "match-1014",
+    "round": 2,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-03T17:45:00Z",
+    "teamA": {
+      "name": "G2 Esports",
+      "players": [
+        { "nickname": "huNter-", "kills": 14, "deaths": 15, "assists": 5, "minutesPlayed": 23 },
+        { "nickname": "malbsMd", "kills": 16, "deaths": 13, "assists": 7, "minutesPlayed": 27 },
+        { "nickname": "NiKo", "kills": 20, "deaths": 14, "assists": 6, "minutesPlayed": 31 },
+        { "nickname": "m0NESY", "kills": 25, "deaths": 12, "assists": 4, "minutesPlayed": 35 }
+      ]
+    },
+    "teamB": {
+      "name": "Vitality",
+      "players": [
+        { "nickname": "flameZ", "kills": 11, "deaths": 21, "assists": 3, "minutesPlayed": 24 },
+        { "nickname": "apEX", "kills": 12, "deaths": 19, "assists": 7, "minutesPlayed": 28 },
+        { "nickname": "spinx", "kills": 14, "deaths": 20, "assists": 4, "minutesPlayed": 32 },
+        { "nickname": "ZywOo", "kills": 22, "deaths": 16, "assists": 5, "minutesPlayed": 36 }
+      ]
+    },
+    "winnerTeam": "G2 Esports"
+  },
+  {
+    "matchId": "match-1015",
+    "round": 2,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-03T19:00:00Z",
+    "teamA": {
+      "name": "Astralis",
+      "players": [
+        { "nickname": "staehr", "kills": 13, "deaths": 14, "assists": 7, "minutesPlayed": 22 },
+        { "nickname": "jabbi", "kills": 15, "deaths": 13, "assists": 4, "minutesPlayed": 26 },
+        { "nickname": "device", "kills": 21, "deaths": 11, "assists": 3, "minutesPlayed": 30 },
+        { "nickname": "blameF", "kills": 19, "deaths": 10, "assists": 5, "minutesPlayed": 34 }
+      ]
+    },
+    "teamB": {
+      "name": "Heroic",
+      "players": [
+        { "nickname": "teses", "kills": 13, "deaths": 17, "assists": 5, "minutesPlayed": 21 },
+        { "nickname": "sjuush", "kills": 14, "deaths": 16, "assists": 4, "minutesPlayed": 25 },
+        { "nickname": "degster", "kills": 15, "deaths": 15, "assists": 3, "minutesPlayed": 29 },
+        { "nickname": "Nertz", "kills": 16, "deaths": 15, "assists": 2, "minutesPlayed": 33 }
+      ]
+    },
+    "winnerTeam": "Astralis"
+  },
+  {
+    "matchId": "match-1016",
+    "round": 2,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-03T20:15:00Z",
+    "teamA": {
+      "name": "MOUZ",
+      "players": [
+        { "nickname": "siuhy", "kills": 11, "deaths": 14, "assists": 9, "minutesPlayed": 20 },
+        { "nickname": "xertioN", "kills": 16, "deaths": 13, "assists": 5, "minutesPlayed": 24 },
+        { "nickname": "Jimpphat", "kills": 17, "deaths": 10, "assists": 6, "minutesPlayed": 28 },
+        { "nickname": "torzsi", "kills": 18, "deaths": 12, "assists": 4, "minutesPlayed": 32 }
+      ]
+    },
+    "teamB": {
+      "name": "Virtus.pro",
+      "players": [
+        { "nickname": "Jame", "kills": 13, "deaths": 14, "assists": 3, "minutesPlayed": 21 },
+        { "nickname": "electroNic", "kills": 14, "deaths": 17, "assists": 3, "minutesPlayed": 25 },
+        { "nickname": "fame", "kills": 12, "deaths": 15, "assists": 5, "minutesPlayed": 29 },
+        { "nickname": "FL1T", "kills": 15, "deaths": 16, "assists": 4, "minutesPlayed": 33 }
+      ]
+    },
+    "winnerTeam": "MOUZ"
+  },
+  {
+    "matchId": "match-1017",
+    "round": 2,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-03T21:30:00Z",
+    "teamA": {
+      "name": "Spirit",
+      "players": [
+        { "nickname": "chopper", "kills": 10, "deaths": 14, "assists": 8, "minutesPlayed": 23 },
+        { "nickname": "magixx", "kills": 12, "deaths": 12, "assists": 6, "minutesPlayed": 27 },
+        { "nickname": "sh1ro", "kills": 20, "deaths": 9, "assists": 4, "minutesPlayed": 31 },
+        { "nickname": "donk", "kills": 29, "deaths": 13, "assists": 5, "minutesPlayed": 35 }
+      ]
+    },
+    "teamB": {
+      "name": "Complexity",
+      "players": [
+        { "nickname": "JT", "kills": 9, "deaths": 17, "assists": 5, "minutesPlayed": 22 },
+        { "nickname": "floppy", "kills": 12, "deaths": 16, "assists": 4, "minutesPlayed": 26 },
+        { "nickname": "hallzerk", "kills": 13, "deaths": 16, "assists": 2, "minutesPlayed": 30 },
+        { "nickname": "Grim", "kills": 14, "deaths": 18, "assists": 3, "minutesPlayed": 34 }
+      ]
+    },
+    "winnerTeam": "Spirit"
+  },
+  {
+    "matchId": "match-1018",
+    "round": 2,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-03T22:45:00Z",
+    "teamA": {
+      "name": "Eternal Fire",
+      "players": [
+        { "nickname": "MAJ3R", "kills": 10, "deaths": 15, "assists": 8, "minutesPlayed": 20 },
+        { "nickname": "Calyx", "kills": 15, "deaths": 12, "assists": 3, "minutesPlayed": 24 },
+        { "nickname": "Wicadia", "kills": 17, "deaths": 14, "assists": 5, "minutesPlayed": 28 },
+        { "nickname": "XANTARES", "kills": 21, "deaths": 13, "assists": 6, "minutesPlayed": 32 }
+      ]
+    },
+    "teamB": {
+      "name": "BIG",
+      "players": [
+        { "nickname": "prodon", "kills": 12, "deaths": 18, "assists": 2, "minutesPlayed": 23 },
+        { "nickname": "Krimbo", "kills": 14, "deaths": 15, "assists": 4, "minutesPlayed": 27 },
+        { "nickname": "syrsoN", "kills": 15, "deaths": 14, "assists": 3, "minutesPlayed": 31 },
+        { "nickname": "tabseN", "kills": 16, "deaths": 16, "assists": 7, "minutesPlayed": 35 }
+      ]
+    },
+    "winnerTeam": "Eternal Fire"
+  },
+  {
+    "matchId": "match-1019",
+    "round": 2,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-04T14:00:00Z",
+    "teamA": {
+      "name": "Fnatic",
+      "players": [
+        { "nickname": "bodyy", "kills": 13, "deaths": 17, "assists": 7, "minutesPlayed": 22 },
+        { "nickname": "Brollan", "kills": 15, "deaths": 14, "assists": 4, "minutesPlayed": 26 },
+        { "nickname": "KRIMZ", "kills": 16, "deaths": 15, "assists": 6, "minutesPlayed": 30 },
+        { "nickname": "matys", "kills": 17, "deaths": 16, "assists": 5, "minutesPlayed": 34 }
+      ]
+    },
+    "teamB": {
+      "name": "NIP",
+      "players": [
+        { "nickname": "alex", "kills": 12, "deaths": 15, "assists": 8, "minutesPlayed": 21 },
+        { "nickname": "isak", "kills": 15, "deaths": 14, "assists": 6, "minutesPlayed": 25 },
+        { "nickname": "rez", "kills": 18, "deaths": 15, "assists": 4, "minutesPlayed": 29 },
+        { "nickname": "r1nkle", "kills": 19, "deaths": 13, "assists": 3, "minutesPlayed": 33 }
+      ]
+    },
+    "winnerTeam": "NIP"
+  },
+  {
+    "matchId": "match-1020",
+    "round": 2,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-04T15:15:00Z",
+    "teamA": {
+      "name": "Imperial",
+      "players": [
+        { "nickname": "decenty", "kills": 12, "deaths": 17, "assists": 6, "minutesPlayed": 24 },
+        { "nickname": "noway", "kills": 14, "deaths": 14, "assists": 5, "minutesPlayed": 28 },
+        { "nickname": "VINI", "kills": 15, "deaths": 15, "assists": 7, "minutesPlayed": 32 },
+        { "nickname": "felps", "kills": 18, "deaths": 16, "assists": 4, "minutesPlayed": 36 }
+      ]
+    },
+    "teamB": {
+      "name": "9z Team",
+      "players": [
+        { "nickname": "buda", "kills": 15, "deaths": 15, "assists": 4, "minutesPlayed": 23 },
+        { "nickname": "max", "kills": 16, "deaths": 14, "assists": 6, "minutesPlayed": 27 },
+        { "nickname": "HUASOPEEK", "kills": 17, "deaths": 15, "assists": 3, "minutesPlayed": 31 },
+        { "nickname": "dgt", "kills": 19, "deaths": 13, "assists": 5, "minutesPlayed": 35 }
+      ]
+    },
+    "winnerTeam": "9z Team"
+  },
+  {
+    "matchId": "match-1021",
+    "round": 3,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-05T14:00:00Z",
+    "teamA": {
+      "name": "FURIA",
+      "players": [
+        { "nickname": "FalleN", "kills": 13, "deaths": 13, "assists": 9, "minutesPlayed": 21 },
+        { "nickname": "chelo", "kills": 14, "deaths": 14, "assists": 4, "minutesPlayed": 25 },
+        { "nickname": "yuurih", "kills": 17, "deaths": 12, "assists": 5, "minutesPlayed": 29 },
+        { "nickname": "KSCERATO", "kills": 21, "deaths": 10, "assists": 6, "minutesPlayed": 33 }
+      ]
+    },
+    "teamB": {
+      "name": "MIBR",
+      "players": [
+        { "nickname": "saffee", "kills": 15, "deaths": 16, "assists": 2, "minutesPlayed": 20 },
+        { "nickname": "brnz4n", "kills": 12, "deaths": 17, "assists": 4, "minutesPlayed": 24 },
+        { "nickname": "exit", "kills": 13, "deaths": 16, "assists": 5, "minutesPlayed": 28 },
+        { "nickname": "insani", "kills": 19, "deaths": 16, "assists": 3, "minutesPlayed": 32 }
+      ]
+    },
+    "winnerTeam": "FURIA"
+  },
+  {
+    "matchId": "match-1022",
+    "round": 3,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-05T15:15:00Z",
+    "teamA": {
+      "name": "NAVI",
+      "players": [
+        { "nickname": "Aleksib", "kills": 9, "deaths": 16, "assists": 11, "minutesPlayed": 22 },
+        { "nickname": "jl", "kills": 14, "deaths": 14, "assists": 5, "minutesPlayed": 26 },
+        { "nickname": "iM", "kills": 15, "deaths": 15, "assists": 6, "minutesPlayed": 30 },
+        { "nickname": "b1t", "kills": 20, "deaths": 13, "assists": 4, "minutesPlayed": 34 }
+      ]
+    },
+    "teamB": {
+      "name": "Pain Gaming",
+      "players": [
+        { "nickname": "snow", "kills": 11, "deaths": 16, "assists": 4, "minutesPlayed": 21 },
+        { "nickname": "kauez", "kills": 13, "deaths": 17, "assists": 5, "minutesPlayed": 25 },
+        { "nickname": "biguzera", "kills": 16, "deaths": 15, "assists": 8, "minutesPlayed": 29 },
+        { "nickname": "nqz", "kills": 17, "deaths": 14, "assists": 3, "minutesPlayed": 33 }
+      ]
+    },
+    "winnerTeam": "NAVI"
+  },
+  {
+    "matchId": "match-1023",
+    "round": 3,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-05T16:30:00Z",
+    "teamA": {
+      "name": "Liquid",
+      "players": [
+        { "nickname": "jks", "kills": 13, "deaths": 15, "assists": 5, "minutesPlayed": 24 },
+        { "nickname": "NAF", "kills": 18, "deaths": 13, "assists": 7, "minutesPlayed": 28 },
+        { "nickname": "YEKINDAR", "kills": 19, "deaths": 14, "assists": 3, "minutesPlayed": 32 },
+        { "nickname": "ultimate", "kills": 20, "deaths": 12, "assists": 4, "minutesPlayed": 36 }
+      ]
+    },
+    "teamB": {
+      "name": "G2 Esports",
+      "players": [
+        { "nickname": "huNter-", "kills": 13, "deaths": 17, "assists": 6, "minutesPlayed": 23 },
+        { "nickname": "malbsMd", "kills": 15, "deaths": 15, "assists": 4, "minutesPlayed": 27 },
+        { "nickname": "NiKo", "kills": 21, "deaths": 16, "assists": 5, "minutesPlayed": 31 },
+        { "nickname": "m0NESY", "kills": 24, "deaths": 14, "assists": 3, "minutesPlayed": 35 }
+      ]
+    },
+    "winnerTeam": "G2 Esports"
+  },
+  {
+    "matchId": "match-1024",
+    "round": 3,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-05T17:45:00Z",
+    "teamA": {
+      "name": "FaZe Clan",
+      "players": [
+        { "nickname": "karrigan", "kills": 10, "deaths": 18, "assists": 9, "minutesPlayed": 20 },
+        { "nickname": "rain", "kills": 15, "deaths": 16, "assists": 6, "minutesPlayed": 24 },
+        { "nickname": "ropz", "kills": 16, "deaths": 16, "assists": 5, "minutesPlayed": 28 },
+        { "nickname": "frozen", "kills": 18, "deaths": 15, "assists": 4, "minutesPlayed": 32 }
+      ]
+    },
+    "teamB": {
+      "name": "Vitality",
+      "players": [
+        { "nickname": "apEX", "kills": 11, "deaths": 18, "assists": 8, "minutesPlayed": 22 },
+        { "nickname": "flameZ", "kills": 12, "deaths": 17, "assists": 3, "minutesPlayed": 26 },
+        { "nickname": "spinx", "kills": 13, "deaths": 17, "assists": 5, "minutesPlayed": 30 },
+        { "nickname": "ZywOo", "kills": 23, "deaths": 14, "assists": 4, "minutesPlayed": 34 }
+      ]
+    },
+    "winnerTeam": "FaZe Clan"
+  },
+  {
+    "matchId": "match-1025",
+    "round": 3,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-05T19:00:00Z",
+    "teamA": {
+      "name": "Astralis",
+      "players": [
+        { "nickname": "jabbi", "kills": 14, "deaths": 15, "assists": 4, "minutesPlayed": 23 },
+        { "nickname": "staehr", "kills": 15, "deaths": 14, "assists": 6, "minutesPlayed": 27 },
+        { "nickname": "blameF", "kills": 17, "deaths": 13, "assists": 7, "minutesPlayed": 31 },
+        { "nickname": "device", "kills": 20, "deaths": 12, "assists": 5, "minutesPlayed": 35 }
+      ]
+    },
+    "teamB": {
+      "name": "MOUZ",
+      "players": [
+        { "nickname": "siuhy", "kills": 10, "deaths": 16, "assists": 10, "minutesPlayed": 21 },
+        { "nickname": "xertioN", "kills": 16, "deaths": 15, "assists": 5, "minutesPlayed": 25 },
+        { "nickname": "Jimpphat", "kills": 18, "deaths": 12, "assists": 6, "minutesPlayed": 29 },
+        { "nickname": "torzsi", "kills": 19, "deaths": 13, "assists": 4, "minutesPlayed": 33 }
+      ]
+    },
+    "winnerTeam": "MOUZ"
+  },
+  {
+    "matchId": "match-1026",
+    "round": 3,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-05T20:15:00Z",
+    "teamA": {
+      "name": "Heroic",
+      "players": [
+        { "nickname": "sjuush", "kills": 13, "deaths": 16, "assists": 6, "minutesPlayed": 22 },
+        { "nickname": "degster", "kills": 14, "deaths": 15, "assists": 3, "minutesPlayed": 26 },
+        { "nickname": "Nertz", "kills": 15, "deaths": 14, "assists": 5, "minutesPlayed": 30 },
+        { "nickname": "teses", "kills": 16, "deaths": 15, "assists": 4, "minutesPlayed": 34 }
+      ]
+    },
+    "teamB": {
+      "name": "Virtus.pro",
+      "players": [
+        { "nickname": "Jame", "kills": 12, "deaths": 14, "assists": 4, "minutesPlayed": 20 },
+        { "nickname": "FL1T", "kills": 14, "deaths": 16, "assists": 5, "minutesPlayed": 24 },
+        { "nickname": "fame", "kills": 13, "deaths": 15, "assists": 6, "minutesPlayed": 28 },
+        { "nickname": "electroNic", "kills": 15, "deaths": 16, "assists": 2, "minutesPlayed": 32 }
+      ]
+    },
+    "winnerTeam": "Heroic"
+  },
+  {
+    "matchId": "match-1027",
+    "round": 3,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-05T21:30:00Z",
+    "teamA": {
+      "name": "Spirit",
+      "players": [
+        { "nickname": "chopper", "kills": 9, "deaths": 14, "assists": 9, "minutesPlayed": 23 },
+        { "nickname": "magixx", "kills": 11, "deaths": 13, "assists": 5, "minutesPlayed": 27 },
+        { "nickname": "sh1ro", "kills": 19, "deaths": 10, "assists": 6, "minutesPlayed": 31 },
+        { "nickname": "donk", "kills": 28, "deaths": 11, "assists": 3, "minutesPlayed": 35 }
+      ]
+    },
+    "teamB": {
+      "name": "Eternal Fire",
+      "players": [
+        { "nickname": "MAJ3R", "kills": 10, "deaths": 18, "assists": 7, "minutesPlayed": 22 },
+        { "nickname": "Calyx", "kills": 12, "deaths": 15, "assists": 3, "minutesPlayed": 26 },
+        { "nickname": "Wicadia", "kills": 15, "deaths": 17, "assists": 5, "minutesPlayed": 30 },
+        { "nickname": "XANTARES", "kills": 20, "deaths": 16, "assists": 4, "minutesPlayed": 34 }
+      ]
+    },
+    "winnerTeam": "Spirit"
+  },
+  {
+    "matchId": "match-1028",
+    "round": 3,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-05T22:45:00Z",
+    "teamA": {
+      "name": "Complexity",
+      "players": [
+        { "nickname": "JT", "kills": 10, "deaths": 16, "assists": 7, "minutesPlayed": 21 },
+        { "nickname": "floppy", "kills": 13, "deaths": 15, "assists": 4, "minutesPlayed": 25 },
+        { "nickname": "hallzerk", "kills": 14, "deaths": 14, "assists": 3, "minutesPlayed": 29 },
+        { "nickname": "Grim", "kills": 15, "deaths": 16, "assists": 5, "minutesPlayed": 33 }
+      ]
+    },
+    "teamB": {
+      "name": "BIG",
+      "players": [
+        { "nickname": "prodon", "kills": 11, "deaths": 17, "assists": 4, "minutesPlayed": 22 },
+        { "nickname": "Krimbo", "kills": 15, "deaths": 15, "assists": 5, "minutesPlayed": 26 },
+        { "nickname": "syrsoN", "kills": 16, "deaths": 13, "assists": 3, "minutesPlayed": 30 },
+        { "nickname": "tabseN", "kills": 17, "deaths": 14, "assists": 6, "minutesPlayed": 34 }
+      ]
+    },
+    "winnerTeam": "BIG"
+  },
+  {
+    "matchId": "match-1029",
+    "round": 3,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-06T14:00:00Z",
+    "teamA": {
+      "name": "Fnatic",
+      "players": [
+        { "nickname": "bodyy", "kills": 12, "deaths": 16, "assists": 6, "minutesPlayed": 20 },
+        { "nickname": "KRIMZ", "kills": 14, "deaths": 15, "assists": 8, "minutesPlayed": 24 },
+        { "nickname": "Brollan", "kills": 15, "deaths": 13, "assists": 5, "minutesPlayed": 28 },
+        { "nickname": "matys", "kills": 16, "deaths": 14, "assists": 4, "minutesPlayed": 32 }
+      ]
+    },
+    "teamB": {
+      "name": "Imperial",
+      "players": [
+        { "nickname": "decenty", "kills": 11, "deaths": 16, "assists": 3, "minutesPlayed": 21 },
+        { "nickname": "VINI", "kills": 13, "deaths": 15, "assists": 7, "minutesPlayed": 25 },
+        { "nickname": "noway", "kills": 15, "deaths": 14, "assists": 5, "minutesPlayed": 29 },
+        { "nickname": "felps", "kills": 17, "deaths": 16, "assists": 4, "minutesPlayed": 33 }
+      ]
+    },
+    "winnerTeam": "Fnatic"
+  },
+  {
+    "matchId": "match-1030",
+    "round": 3,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-06T15:15:00Z",
+    "teamA": {
+      "name": "NIP",
+      "players": [
+        { "nickname": "alex", "kills": 10, "deaths": 15, "assists": 9, "minutesPlayed": 23 },
+        { "nickname": "isak", "kills": 13, "deaths": 14, "assists": 6, "minutesPlayed": 27 },
+        { "nickname": "rez", "kills": 19, "deaths": 13, "assists": 4, "minutesPlayed": 31 },
+        { "nickname": "r1nkle", "kills": 21, "deaths": 11, "assists": 3, "minutesPlayed": 35 }
+      ]
+    },
+    "teamB": {
+      "name": "9z Team",
+      "players": [
+        { "nickname": "buda", "kills": 12, "deaths": 17, "assists": 6, "minutesPlayed": 22 },
+        { "nickname": "max", "kills": 14, "deaths": 16, "assists": 5, "minutesPlayed": 26 },
+        { "nickname": "HUASOPEEK", "kills": 16, "deaths": 15, "assists": 3, "minutesPlayed": 30 },
+        { "nickname": "dgt", "kills": 18, "deaths": 15, "assists": 4, "minutesPlayed": 34 }
+      ]
+    },
+    "winnerTeam": "NIP"
+  },
+  {
+    "matchId": "match-1031",
+    "round": 4,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-07T14:00:00Z",
+    "teamA": {
+      "name": "FURIA",
+      "players": [
+        { "nickname": "chelo", "kills": 13, "deaths": 15, "assists": 5, "minutesPlayed": 22 },
+        { "nickname": "FalleN", "kills": 14, "deaths": 12, "assists": 8, "minutesPlayed": 26 },
+        { "nickname": "yuurih", "kills": 19, "deaths": 13, "assists": 6, "minutesPlayed": 30 },
+        { "nickname": "KSCERATO", "kills": 23, "deaths": 11, "assists": 4, "minutesPlayed": 34 }
+      ]
+    },
+    "teamB": {
+      "name": "Liquid",
+      "players": [
+        { "nickname": "YEKINDAR", "kills": 15, "deaths": 17, "assists": 4, "minutesPlayed": 21 },
+        { "nickname": "jks", "kills": 14, "deaths": 16, "assists": 5, "minutesPlayed": 25 },
+        { "nickname": "NAF", "kills": 17, "deaths": 15, "assists": 6, "minutesPlayed": 29 },
+        { "nickname": "ultimate", "kills": 19, "deaths": 14, "assists": 3, "minutesPlayed": 33 }
+      ]
+    },
+    "winnerTeam": "FURIA"
+  },
+  {
+    "matchId": "match-1032",
+    "round": 4,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-07T15:15:00Z",
+    "teamA": {
+      "name": "MIBR",
+      "players": [
+        { "nickname": "brnz4n", "kills": 14, "deaths": 16, "assists": 5, "minutesPlayed": 24 },
+        { "nickname": "exit", "kills": 15, "deaths": 14, "assists": 6, "minutesPlayed": 28 },
+        { "nickname": "saffee", "kills": 16, "deaths": 12, "assists": 4, "minutesPlayed": 32 },
+        { "nickname": "insani", "kills": 22, "deaths": 15, "assists": 3, "minutesPlayed": 36 }
+      ]
+    },
+    "teamB": {
+      "name": "NAVI",
+      "players": [
+        { "nickname": "jl", "kills": 12, "deaths": 17, "assists": 6, "minutesPlayed": 23 },
+        { "nickname": "Aleksib", "kills": 10, "deaths": 16, "assists": 10, "minutesPlayed": 27 },
+        { "nickname": "iM", "kills": 14, "deaths": 16, "assists": 5, "minutesPlayed": 31 },
+        { "nickname": "b1t", "kills": 18, "deaths": 15, "assists": 4, "minutesPlayed": 35 }
+      ]
+    },
+    "winnerTeam": "MIBR"
+  },
+  {
+    "matchId": "match-1033",
+    "round": 4,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-07T16:30:00Z",
+    "teamA": {
+      "name": "Pain Gaming",
+      "players": [
+        { "nickname": "snow", "kills": 12, "deaths": 16, "assists": 4, "minutesPlayed": 22 },
+        { "nickname": "kauez", "kills": 14, "deaths": 17, "assists": 5, "minutesPlayed": 26 },
+        { "nickname": "biguzera", "kills": 16, "deaths": 16, "assists": 7, "minutesPlayed": 30 },
+        { "nickname": "nqz", "kills": 18, "deaths": 14, "assists": 3, "minutesPlayed": 34 }
+      ]
+    },
+    "teamB": {
+      "name": "G2 Esports",
+      "players": [
+        { "nickname": "huNter-", "kills": 15, "deaths": 16, "assists": 5, "minutesPlayed": 23 },
+        { "nickname": "malbsMd", "kills": 17, "deaths": 14, "assists": 3, "minutesPlayed": 27 },
+        { "nickname": "NiKo", "kills": 21, "deaths": 15, "assists": 6, "minutesPlayed": 31 },
+        { "nickname": "m0NESY", "kills": 26, "deaths": 11, "assists": 4, "minutesPlayed": 35 }
+      ]
+    },
+    "winnerTeam": "G2 Esports"
+  },
+  {
+    "matchId": "match-1034",
+    "round": 4,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-07T17:45:00Z",
+    "teamA": {
+      "name": "FaZe Clan",
+      "players": [
+        { "nickname": "karrigan", "kills": 12, "deaths": 17, "assists": 8, "minutesPlayed": 21 },
+        { "nickname": "rain", "kills": 16, "deaths": 15, "assists": 5, "minutesPlayed": 25 },
+        { "nickname": "ropz", "kills": 17, "deaths": 15, "assists": 6, "minutesPlayed": 29 },
+        { "nickname": "frozen", "kills": 19, "deaths": 14, "assists": 4, "minutesPlayed": 33 }
+      ]
+    },
+    "teamB": {
+      "name": "Astralis",
+      "players": [
+        { "nickname": "staehr", "kills": 14, "deaths": 16, "assists": 5, "minutesPlayed": 20 },
+        { "nickname": "jabbi", "kills": 15, "deaths": 15, "assists": 6, "minutesPlayed": 24 },
+        { "nickname": "blameF", "kills": 16, "deaths": 14, "assists": 7, "minutesPlayed": 28 },
+        { "nickname": "device", "kills": 18, "deaths": 15, "assists": 4, "minutesPlayed": 32 }
+      ]
+    },
+    "winnerTeam": "FaZe Clan"
+  },
+  {
+    "matchId": "match-1035",
+    "round": 4,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-07T19:00:00Z",
+    "teamA": {
+      "name": "Vitality",
+      "players": [
+        { "nickname": "flameZ", "kills": 12, "deaths": 18, "assists": 3, "minutesPlayed": 23 },
+        { "nickname": "apEX", "kills": 13, "deaths": 18, "assists": 9, "minutesPlayed": 27 },
+        { "nickname": "spinx", "kills": 15, "deaths": 17, "assists": 4, "minutesPlayed": 31 },
+        { "nickname": "ZywOo", "kills": 25, "deaths": 13, "assists": 5, "minutesPlayed": 35 }
+      ]
+    },
+    "teamB": {
+      "name": "MOUZ",
+      "players": [
+        { "nickname": "siuhy", "kills": 11, "deaths": 16, "assists": 10, "minutesPlayed": 22 },
+        { "nickname": "Jimpphat", "kills": 16, "deaths": 14, "assists": 6, "minutesPlayed": 26 },
+        { "nickname": "torzsi", "kills": 17, "deaths": 16, "assists": 4, "minutesPlayed": 30 },
+        { "nickname": "xertioN", "kills": 18, "deaths": 15, "assists": 5, "minutesPlayed": 34 }
+      ]
+    },
+    "winnerTeam": "Vitality"
+  },
+  {
+    "matchId": "match-1036",
+    "round": 4,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-07T20:15:00Z",
+    "teamA": {
+      "name": "Heroic",
+      "players": [
+        { "nickname": "sjuush", "kills": 14, "deaths": 15, "assists": 5, "minutesPlayed": 24 },
+        { "nickname": "teses", "kills": 15, "deaths": 16, "assists": 4, "minutesPlayed": 28 },
+        { "nickname": "Nertz", "kills": 16, "deaths": 14, "assists": 6, "minutesPlayed": 32 },
+        { "nickname": "degster", "kills": 17, "deaths": 14, "assists": 3, "minutesPlayed": 36 }
+      ]
+    },
+    "teamB": {
+      "name": "Spirit",
+      "players": [
+        { "nickname": "chopper", "kills": 8, "deaths": 16, "assists": 9, "minutesPlayed": 23 },
+        { "nickname": "magixx", "kills": 12, "deaths": 15, "assists": 6, "minutesPlayed": 27 },
+        { "nickname": "sh1ro", "kills": 21, "deaths": 10, "assists": 5, "minutesPlayed": 31 },
+        { "nickname": "donk", "kills": 30, "deaths": 12, "assists": 4, "minutesPlayed": 35 }
+      ]
+    },
+    "winnerTeam": "Spirit"
+  },
+  {
+    "matchId": "match-1037",
+    "round": 4,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-07T21:30:00Z",
+    "teamA": {
+      "name": "Virtus.pro",
+      "players": [
+        { "nickname": "fame", "kills": 12, "deaths": 16, "assists": 5, "minutesPlayed": 22 },
+        { "nickname": "Jame", "kills": 14, "deaths": 14, "assists": 4, "minutesPlayed": 26 },
+        { "nickname": "electroNic", "kills": 15, "deaths": 15, "assists": 4, "minutesPlayed": 30 },
+        { "nickname": "FL1T", "kills": 16, "deaths": 15, "assists": 3, "minutesPlayed": 34 }
+      ]
+    },
+    "teamB": {
+      "name": "Eternal Fire",
+      "players": [
+        { "nickname": "MAJ3R", "kills": 11, "deaths": 16, "assists": 8, "minutesPlayed": 21 },
+        { "nickname": "Calyx", "kills": 14, "deaths": 14, "assists": 3, "minutesPlayed": 25 },
+        { "nickname": "Wicadia", "kills": 16, "deaths": 15, "assists": 4, "minutesPlayed": 29 },
+        { "nickname": "XANTARES", "kills": 22, "deaths": 13, "assists": 5, "minutesPlayed": 33 }
+      ]
+    },
+    "winnerTeam": "Eternal Fire"
+  },
+  {
+    "matchId": "match-1038",
+    "round": 4,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-07T22:45:00Z",
+    "teamA": {
+      "name": "Complexity",
+      "players": [
+        { "nickname": "JT", "kills": 11, "deaths": 17, "assists": 6, "minutesPlayed": 20 },
+        { "nickname": "hallzerk", "kills": 13, "deaths": 15, "assists": 3, "minutesPlayed": 24 },
+        { "nickname": "floppy", "kills": 14, "deaths": 16, "assists": 4, "minutesPlayed": 28 },
+        { "nickname": "Grim", "kills": 16, "deaths": 15, "assists": 5, "minutesPlayed": 32 }
+      ]
+    },
+    "teamB": {
+      "name": "Fnatic",
+      "players": [
+        { "nickname": "bodyy", "kills": 13, "deaths": 16, "assists": 6, "minutesPlayed": 23 },
+        { "nickname": "KRIMZ", "kills": 15, "deaths": 14, "assists": 7, "minutesPlayed": 27 },
+        { "nickname": "Brollan", "kills": 16, "deaths": 13, "assists": 5, "minutesPlayed": 31 },
+        { "nickname": "matys", "kills": 17, "deaths": 15, "assists": 4, "minutesPlayed": 35 }
+      ]
+    },
+    "winnerTeam": "Fnatic"
+  },
+  {
+    "matchId": "match-1039",
+    "round": 4,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-08T14:00:00Z",
+    "teamA": {
+      "name": "BIG",
+      "players": [
+        { "nickname": "prodon", "kills": 12, "deaths": 17, "assists": 4, "minutesPlayed": 22 },
+        { "nickname": "Krimbo", "kills": 14, "deaths": 15, "assists": 5, "minutesPlayed": 26 },
+        { "nickname": "syrsoN", "kills": 15, "deaths": 14, "assists": 3, "minutesPlayed": 30 },
+        { "nickname": "tabseN", "kills": 16, "deaths": 15, "assists": 7, "minutesPlayed": 34 }
+      ]
+    },
+    "teamB": {
+      "name": "NIP",
+      "players": [
+        { "nickname": "alex", "kills": 11, "deaths": 15, "assists": 8, "minutesPlayed": 21 },
+        { "nickname": "isak", "kills": 14, "deaths": 14, "assists": 6, "minutesPlayed": 25 },
+        { "nickname": "rez", "kills": 18, "deaths": 14, "assists": 4, "minutesPlayed": 29 },
+        { "nickname": "r1nkle", "kills": 20, "deaths": 12, "assists": 3, "minutesPlayed": 33 }
+      ]
+    },
+    "winnerTeam": "NIP"
+  },
+  {
+    "matchId": "match-1040",
+    "round": 4,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-08T15:15:00Z",
+    "teamA": {
+      "name": "Imperial",
+      "players": [
+        { "nickname": "decenty", "kills": 13, "deaths": 16, "assists": 4, "minutesPlayed": 20 },
+        { "nickname": "VINI", "kills": 14, "deaths": 16, "assists": 7, "minutesPlayed": 24 },
+        { "nickname": "noway", "kills": 15, "deaths": 14, "assists": 5, "minutesPlayed": 28 },
+        { "nickname": "felps", "kills": 19, "deaths": 15, "assists": 4, "minutesPlayed": 32 }
+      ]
+    },
+    "teamB": {
+      "name": "9z Team",
+      "players": [
+        { "nickname": "buda", "kills": 14, "deaths": 16, "assists": 5, "minutesPlayed": 23 },
+        { "nickname": "max", "kills": 15, "deaths": 15, "assists": 6, "minutesPlayed": 27 },
+        { "nickname": "HUASOPEEK", "kills": 17, "deaths": 15, "assists": 3, "minutesPlayed": 31 },
+        { "nickname": "dgt", "kills": 20, "deaths": 14, "assists": 4, "minutesPlayed": 35 }
+      ]
+    },
+    "winnerTeam": "9z Team"
+  },
+  {
+    "matchId": "match-1041",
+    "round": 5,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-09T14:00:00Z",
+    "teamA": {
+      "name": "FURIA",
+      "players": [
+        { "nickname": "chelo", "kills": 13, "deaths": 14, "assists": 4, "minutesPlayed": 22 },
+        { "nickname": "FalleN", "kills": 15, "deaths": 11, "assists": 9, "minutesPlayed": 26 },
+        { "nickname": "yuurih", "kills": 18, "deaths": 12, "assists": 7, "minutesPlayed": 30 },
+        { "nickname": "KSCERATO", "kills": 24, "deaths": 10, "assists": 5, "minutesPlayed": 34 }
+      ]
+    },
+    "teamB": {
+      "name": "Spirit",
+      "players": [
+        { "nickname": "chopper", "kills": 9, "deaths": 15, "assists": 8, "minutesPlayed": 21 },
+        { "nickname": "magixx", "kills": 11, "deaths": 14, "assists": 6, "minutesPlayed": 25 },
+        { "nickname": "sh1ro", "kills": 19, "deaths": 10, "assists": 5, "minutesPlayed": 29 },
+        { "nickname": "donk", "kills": 32, "deaths": 13, "assists": 3, "minutesPlayed": 33 }
+      ]
+    },
+    "winnerTeam": "Spirit"
+  },
+  {
+    "matchId": "match-1042",
+    "round": 5,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-09T15:15:00Z",
+    "teamA": {
+      "name": "MIBR",
+      "players": [
+        { "nickname": "exit", "kills": 15, "deaths": 14, "assists": 5, "minutesPlayed": 23 },
+        { "nickname": "brnz4n", "kills": 14, "deaths": 15, "assists": 6, "minutesPlayed": 27 },
+        { "nickname": "saffee", "kills": 17, "deaths": 11, "assists": 4, "minutesPlayed": 31 },
+        { "nickname": "insani", "kills": 23, "deaths": 14, "assists": 3, "minutesPlayed": 35 }
+      ]
+    },
+    "teamB": {
+      "name": "G2 Esports",
+      "players": [
+        { "nickname": "huNter-", "kills": 14, "deaths": 15, "assists": 5, "minutesPlayed": 20 },
+        { "nickname": "malbsMd", "kills": 18, "deaths": 13, "assists": 3, "minutesPlayed": 24 },
+        { "nickname": "NiKo", "kills": 22, "deaths": 14, "assists": 6, "minutesPlayed": 28 },
+        { "nickname": "m0NESY", "kills": 27, "deaths": 12, "assists": 4, "minutesPlayed": 32 }
+      ]
+    },
+    "winnerTeam": "G2 Esports"
+  },
+  {
+    "matchId": "match-1043",
+    "round": 5,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-09T16:30:00Z",
+    "teamA": {
+      "name": "NAVI",
+      "players": [
+        { "nickname": "jl", "kills": 13, "deaths": 16, "assists": 6, "minutesPlayed": 21 },
+        { "nickname": "Aleksib", "kills": 11, "deaths": 15, "assists": 11, "minutesPlayed": 25 },
+        { "nickname": "iM", "kills": 16, "deaths": 15, "assists": 4, "minutesPlayed": 29 },
+        { "nickname": "b1t", "kills": 19, "deaths": 14, "assists": 5, "minutesPlayed": 33 }
+      ]
+    },
+    "teamB": {
+      "name": "FaZe Clan",
+      "players": [
+        { "nickname": "karrigan", "kills": 11, "deaths": 17, "assists": 9, "minutesPlayed": 22 },
+        { "nickname": "ropz", "kills": 16, "deaths": 16, "assists": 5, "minutesPlayed": 26 },
+        { "nickname": "rain", "kills": 15, "deaths": 16, "assists": 6, "minutesPlayed": 30 },
+        { "nickname": "frozen", "kills": 18, "deaths": 15, "assists": 4, "minutesPlayed": 34 }
+      ]
+    },
+    "winnerTeam": "NAVI"
+  },
+  {
+    "matchId": "match-1044",
+    "round": 5,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-09T17:45:00Z",
+    "teamA": {
+      "name": "Liquid",
+      "players": [
+        { "nickname": "YEKINDAR", "kills": 17, "deaths": 15, "assists": 4, "minutesPlayed": 20 },
+        { "nickname": "jks", "kills": 15, "deaths": 14, "assists": 5, "minutesPlayed": 24 },
+        { "nickname": "NAF", "kills": 20, "deaths": 12, "assists": 6, "minutesPlayed": 28 },
+        { "nickname": "ultimate", "kills": 21, "deaths": 13, "assists": 3, "minutesPlayed": 32 }
+      ]
+    },
+    "teamB": {
+      "name": "Vitality",
+      "players": [
+        { "nickname": "apEX", "kills": 12, "deaths": 19, "assists": 8, "minutesPlayed": 23 },
+        { "nickname": "flameZ", "kills": 13, "deaths": 18, "assists": 3, "minutesPlayed": 27 },
+        { "nickname": "spinx", "kills": 14, "deaths": 18, "assists": 4, "minutesPlayed": 31 },
+        { "nickname": "ZywOo", "kills": 24, "deaths": 15, "assists": 5, "minutesPlayed": 35 }
+      ]
+    },
+    "winnerTeam": "Liquid"
+  },
+  {
+    "matchId": "match-1045",
+    "round": 5,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-09T19:00:00Z",
+    "teamA": {
+      "name": "Astralis",
+      "players": [
+        { "nickname": "staehr", "kills": 14, "deaths": 15, "assists": 6, "minutesPlayed": 23 },
+        { "nickname": "device", "kills": 19, "deaths": 13, "assists": 4, "minutesPlayed": 27 },
+        { "nickname": "jabbi", "kills": 16, "deaths": 14, "assists": 5, "minutesPlayed": 31 },
+        { "nickname": "blameF", "kills": 18, "deaths": 12, "assists": 7, "minutesPlayed": 35 }
+      ]
+    },
+    "teamB": {
+      "name": "MOUZ",
+      "players": [
+        { "nickname": "siuhy", "kills": 12, "deaths": 14, "assists": 10, "minutesPlayed": 22 },
+        { "nickname": "torzsi", "kills": 18, "deaths": 14, "assists": 4, "minutesPlayed": 26 },
+        { "nickname": "xertioN", "kills": 17, "deaths": 15, "assists": 5, "minutesPlayed": 30 },
+        { "nickname": "Jimpphat", "kills": 19, "deaths": 11, "assists": 6, "minutesPlayed": 34 }
+      ]
+    },
+    "winnerTeam": "MOUZ"
+  },
+  {
+    "matchId": "match-1046",
+    "round": 5,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-09T20:15:00Z",
+    "teamA": {
+      "name": "Heroic",
+      "players": [
+        { "nickname": "sjuush", "kills": 13, "deaths": 16, "assists": 5, "minutesPlayed": 21 },
+        { "nickname": "degster", "kills": 14, "deaths": 15, "assists": 3, "minutesPlayed": 25 },
+        { "nickname": "Nertz", "kills": 15, "deaths": 14, "assists": 6, "minutesPlayed": 29 },
+        { "nickname": "teses", "kills": 16, "deaths": 15, "assists": 4, "minutesPlayed": 33 }
+      ]
+    },
+    "teamB": {
+      "name": "Eternal Fire",
+      "players": [
+        { "nickname": "MAJ3R", "kills": 10, "deaths": 16, "assists": 8, "minutesPlayed": 20 },
+        { "nickname": "Calyx", "kills": 13, "deaths": 14, "assists": 3, "minutesPlayed": 24 },
+        { "nickname": "Wicadia", "kills": 16, "deaths": 15, "assists": 4, "minutesPlayed": 28 },
+        { "nickname": "XANTARES", "kills": 21, "deaths": 14, "assists": 5, "minutesPlayed": 32 }
+      ]
+    },
+    "winnerTeam": "Eternal Fire"
+  },
+  {
+    "matchId": "match-1047",
+    "round": 5,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-09T21:30:00Z",
+    "teamA": {
+      "name": "Virtus.pro",
+      "players": [
+        { "nickname": "Jame", "kills": 12, "deaths": 15, "assists": 4, "minutesPlayed": 22 },
+        { "nickname": "fame", "kills": 11, "deaths": 17, "assists": 5, "minutesPlayed": 26 },
+        { "nickname": "electroNic", "kills": 14, "deaths": 16, "assists": 4, "minutesPlayed": 30 },
+        { "nickname": "FL1T", "kills": 15, "deaths": 16, "assists": 3, "minutesPlayed": 34 }
+      ]
+    },
+    "teamB": {
+      "name": "Complexity",
+      "players": [
+        { "nickname": "JT", "kills": 10, "deaths": 16, "assists": 7, "minutesPlayed": 21 },
+        { "nickname": "floppy", "kills": 13, "deaths": 15, "assists": 4, "minutesPlayed": 25 },
+        { "nickname": "hallzerk", "kills": 14, "deaths": 13, "assists": 3, "minutesPlayed": 29 },
+        { "nickname": "Grim", "kills": 15, "deaths": 14, "assists": 5, "minutesPlayed": 33 }
+      ]
+    },
+    "winnerTeam": "Complexity"
+  },
+  {
+    "matchId": "match-1048",
+    "round": 5,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-09T22:45:00Z",
+    "teamA": {
+      "name": "Fnatic",
+      "players": [
+        { "nickname": "bodyy", "kills": 12, "deaths": 17, "assists": 6, "minutesPlayed": 20 },
+        { "nickname": "KRIMZ", "kills": 15, "deaths": 15, "assists": 7, "minutesPlayed": 24 },
+        { "nickname": "Brollan", "kills": 16, "deaths": 13, "assists": 5, "minutesPlayed": 28 },
+        { "nickname": "matys", "kills": 18, "deaths": 14, "assists": 4, "minutesPlayed": 32 }
+      ]
+    },
+    "teamB": {
+      "name": "BIG",
+      "players": [
+        { "nickname": "prodon", "kills": 13, "deaths": 17, "assists": 4, "minutesPlayed": 21 },
+        { "nickname": "Krimbo", "kills": 15, "deaths": 15, "assists": 5, "minutesPlayed": 25 },
+        { "nickname": "syrsoN", "kills": 16, "deaths": 14, "assists": 3, "minutesPlayed": 29 },
+        { "nickname": "tabseN", "kills": 17, "deaths": 15, "assists": 7, "minutesPlayed": 33 }
+      ]
+    },
+    "winnerTeam": "Fnatic"
+  },
+  {
+    "matchId": "match-1049",
+    "round": 5,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-10T14:00:00Z",
+    "teamA": {
+      "name": "NIP",
+      "players": [
+        { "nickname": "alex", "kills": 11, "deaths": 15, "assists": 8, "minutesPlayed": 22 },
+        { "nickname": "isak", "kills": 14, "deaths": 14, "assists": 6, "minutesPlayed": 26 },
+        { "nickname": "rez", "kills": 19, "deaths": 13, "assists": 4, "minutesPlayed": 30 },
+        { "nickname": "r1nkle", "kills": 21, "deaths": 12, "assists": 3, "minutesPlayed": 34 }
+      ]
+    },
+    "teamB": {
+      "name": "Imperial",
+      "players": [
+        { "nickname": "decenty", "kills": 12, "deaths": 17, "assists": 4, "minutesPlayed": 21 },
+        { "nickname": "VINI", "kills": 14, "deaths": 16, "assists": 7, "minutesPlayed": 25 },
+        { "nickname": "noway", "kills": 15, "deaths": 14, "assists": 5, "minutesPlayed": 29 },
+        { "nickname": "felps", "kills": 18, "deaths": 15, "assists": 4, "minutesPlayed": 33 }
+      ]
+    },
+    "winnerTeam": "NIP"
+  },
+  {
+    "matchId": "match-1050",
+    "round": 5,
+    "tournamentId": "tournament-55",
+    "matchDate": "2026-10-10T15:15:00Z",
+    "teamA": {
+      "name": "9z Team",
+      "players": [
+        { "nickname": "buda", "kills": 14, "deaths": 16, "assists": 5, "minutesPlayed": 23 },
+        { "nickname": "max", "kills": 16, "deaths": 14, "assists": 6, "minutesPlayed": 27 },
+        { "nickname": "HUASOPEEK", "kills": 18, "deaths": 14, "assists": 3, "minutesPlayed": 31 },
+        { "nickname": "dgt", "kills": 21, "deaths": 13, "assists": 4, "minutesPlayed": 35 }
+      ]
+    },
+    "teamB": {
+      "name": "Pain Gaming",
+      "players": [
+        { "nickname": "snow", "kills": 12, "deaths": 17, "assists": 4, "minutesPlayed": 22 },
+        { "nickname": "kauez", "kills": 13, "deaths": 18, "assists": 5, "minutesPlayed": 26 },
+        { "nickname": "biguzera", "kills": 15, "deaths": 16, "assists": 7, "minutesPlayed": 30 },
+        { "nickname": "nqz", "kills": 17, "deaths": 15, "assists": 3, "minutesPlayed": 34 }
+      ]
+    },
+    "winnerTeam": "9z Team"
+  }
+]

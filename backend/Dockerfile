@@ -4,7 +4,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY backend/ .
 
-# SQLAlchemy é usado pelo simulador externo.
+# Simulador externo com dados em JSON.
 FROM common AS official
 COPY requirements-official.txt .
 RUN pip install --no-cache-dir -r requirements-official.txt

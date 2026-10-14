@@ -15,8 +15,7 @@ docker compose up -d --build
 - Backend: http://localhost:8000/docs
 - API oficial simulada: http://localhost:8001/docs
 
-O Compose inicia o backend, o frontend e o simulador oficial. O simulador tem
-um MySQL próprio (`official-db`). O backend consulta a API por HTTP e salva
+O Compose inicia o backend, o frontend e o simulador oficial. O simulador lê o arquivo `backend/src/simulator/Partidas_oficiais.json`. O backend consulta a API por HTTP e salva
 as respostas validadas em seu MySQL, no volume `backend_mysql_data`.
 O volume conserva as partidas após recriar containers.
 
@@ -29,13 +28,13 @@ Não há vínculo com um torneio. Você pode misturar quaisquer IDs no arquivo.
 
 ```csv
 id_partida
-FN-2026-R1-M1001
-FN-2026-R1-M1002
+MATCH-1001
+MATCH-1002
 ```
 
 Os IDs são normalizados. Cada linha é resolvida sequencialmente. IDs já salvos não consultam a API. Hífens, espaços,
-maiúsculas e zeros extras são normalizados: `fn–2026–r01–m01002` corresponde a
-`FN-2026-R1-M1002`. A tela mostra todos os jogadores retornados pela API.
+maiúsculas e zeros extras são normalizados: `match–1002` corresponde a
+`MATCH-1002`. A tela mostra todos os jogadores retornados pela API.
 
 O endpoint é `POST /api/consultar-csv`, com os campos multipart `arquivo` e
 `criterio` (`minutos` ou `kills`). Ele retorna `partidas`, `falhas`,
@@ -52,7 +51,7 @@ Pré-requisitos: Python 3.10 a 3.12, Node.js 18+, npm 9+ e Bash.
 ```bash
 npm run setup
 # Inicia o simulador externo usado pelo backend local:
-docker compose up -d backend-db official-db official-api
+docker compose up -d backend-db official-api
 npm run dev
 ```
 
@@ -74,22 +73,22 @@ npm run build:frontend
 Os arquivos em `backend/src/simulator` separam as duas responsabilidades:
 
 - `official_api_client.py`: cliente HTTP usado pelo backend para consultar partidas, validar respostas e repetir chamadas após falhas de comunicação.
-- `official_api_server.py`: servidor FastAPI que simula a API oficial, consulta o MySQL e aplica os atrasos e falhas configurados.
+- `official_api_server.py`: servidor FastAPI que simula a API oficial, lê o JSON e aplica os atrasos e falhas configurados.
 
-O serviço `official-api` usa `requirements-official.txt`, que adiciona as
-SQLAlchemy à imagem do simulador. PyMySQL também é usado pelo backend. `OFFICIAL_DATABASE_URL`
-configura sua conexão ao MySQL. O SQL
-`backend/src/simulator/Partidas_Oficiais_Fortnite.sql` inicializa 400
-participações de jogadores em 50 partidas no primeiro uso do volume
-`official_mysql_data`. Reiniciar os containers não reinsere os registros.
+O serviço `official-api` lê `backend/src/simulator/Partidas_oficiais.json`,
+montado no container em modo somente leitura. `OFFICIAL_DATA_PATH` permite
+configurar outro caminho. O arquivo é relido a cada consulta.
+Os campos `matchId`, `round`, `teamA`, `teamB` e `winnerTeam` são convertidos
+para a resposta da API; `tournamentId`, mortes e assistências também são retornados.
+A data da partida vem de `matchDate` e os minutos de cada jogador vêm de
+`minutesPlayed`, retornados como `data_partida` e `minutos` na API.
 
 - Lista: `GET http://localhost:8001/api/partidas` (paginação por `limit` e `offset`).
-- Partida: `GET http://localhost:8001/api/partidas/FN-2026-R1-M1001`.
+- Partida: `GET http://localhost:8001/api/partidas/MATCH-1001`.
 
 A simulação tem latência de 2 a 10 segundos e 5% de falhas temporárias.
 O backend tenta até três vezes por linha, com timeout. As consultas são sequenciais,
-na ordem do CSV, sem paralelismo. IDs `MATCH-*` do CSV antigo não existem nesse
-simulador; use os IDs `FN-2026-*` para obter resultados.
+na ordem do CSV, sem paralelismo. Use os IDs `MATCH-*` presentes no campo `matchId` do JSON.
 
 Para testar sem atrasos ou falhas simuladas:
 
@@ -124,7 +123,7 @@ a reutilização das partidas persistidas, as consultas sequenciais e os resulta
 
 ## Persistência e consulta por ID
 
-`GET /api/partidas/FN-2026-R1-M1001` retorna uma partida. Se ela ainda não
+`GET /api/partidas/MATCH-1001` retorna uma partida. Se ela ainda não
 estiver salva, o backend consulta a API, valida e persiste sua resposta.
 O mesmo fluxo é usado pelo upload CSV. O campo `origem` indica `api` na
 primeira consulta e `banco` nas seguintes. Erros e partidas inválidas não
