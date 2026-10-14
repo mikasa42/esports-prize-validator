@@ -4,10 +4,23 @@ from typing import Literal
 from fastapi import APIRouter, File, Form, HTTPException, UploadFile, Query
 from src.repositories.match_repository import BancoIndisponivel, listar_partidas_salvas
 from src.services.match_lookup_service import consultar_csv, consultar_id
+from src.services.tournament_winners_service import consultar_ganhadores
 
 router = APIRouter(prefix='/api', tags=['Partidas'])
 
 MAX_CSV_BYTES = 10 * 1024 * 1024
+
+
+@router.get('/ganhadores')
+def ganhadores_torneios(
+    ano: int | None = Query(None, ge=1900, le=9999),
+    torneio: str | None = Query(None, min_length=1, max_length=100),
+    criterio: Literal['minutos', 'kills'] = Query('minutos'),
+):
+    try:
+        return consultar_ganhadores(ano=ano, torneio=torneio, criterio=criterio)
+    except BancoIndisponivel as err:
+        raise HTTPException(status_code=503, detail=str(err))
 
 
 @router.get('/historico')

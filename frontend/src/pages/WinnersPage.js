@@ -1,0 +1,31 @@
+import React, { useState } from 'react';
+import Icon from '../components/Icon';
+import PrizeResults, { currency } from '../components/PrizeResults';
+import useTournamentWinners from '../hooks/useTournamentWinners';
+
+export default function WinnersPage({ navigate }) {
+  const [year, setYear] = useState('');
+  const [tournament, setTournament] = useState('');
+  const [criterion, setCriterion] = useState('minutos');
+  const [refresh, setRefresh] = useState(0);
+  const { status, data, error } = useTournamentWinners({ year, tournament, criterion, refresh });
+  const loading = status === 'loading';
+  const winners = data?.ganhadores || [];
+  return <>
+    <div className="page-heading heading-with-action"><div><span className="eyebrow">OS DESTAQUES DA TEMPORADA</span><h1>Quem chegou ao topo.</h1><p>Ganhadores, classificação e premiações dos torneios de cada ano.</p></div><button className="button button-secondary" disabled={loading} onClick={() => setRefresh(value => value + 1)}><Icon name="refresh" size={17} />Atualizar resultados</button></div>
+    <section className="panel tournament-filters" aria-label="Filtros dos ganhadores">
+      <label>Ano do torneio<select aria-label="Ano do torneio" value={year || data?.ano || ''} disabled={!data?.anos.length} onChange={event => { setYear(event.target.value); setTournament(''); }}>{!data?.anos.length && <option value="">Sem anos disponíveis</option>}{data?.anos.map(value => <option value={value} key={value}>{value}</option>)}</select></label>
+      <label>Torneio<select aria-label="Torneio" value={tournament || data?.torneio || ''} disabled={!data?.torneios.length || loading} onChange={event => setTournament(event.target.value)}>{!data?.torneios.length && <option value="">Sem torneios disponíveis</option>}{data?.torneios.map(value => <option value={value} key={value}>{value === 'sem-identificacao' ? 'Sem torneio informado' : value}</option>)}</select></label>
+      <label>Critério de rateio<select aria-label="Critério de rateio dos ganhadores" value={criterion} onChange={event => setCriterion(event.target.value)}><option value="minutos">Minutos jogados</option><option value="kills">Abates / kills</option></select></label>
+      <div className="tournament-scope"><Icon name="clock" size={19} /><span>Classificação com base<br />nas partidas salvas.</span></div>
+    </section>
+    {loading && <div className="panel winners-loading" role="status"><div className="skeleton" /><div className="skeleton" /><p>Calculando a classificação e o rateio…</p></div>}
+    {error && <div className="alert alert-error" role="alert">{error}<button className="button button-secondary button-small" onClick={() => setRefresh(value => value + 1)}>Tentar novamente</button></div>}
+    {status === 'success' && (!data.total_partidas ? <section className="panel empty-state"><div className="empty-icon"><Icon name="trophy" size={28} /></div><h2>Nenhum resultado nesta temporada</h2><p>Consulte partidas para montar a classificação dos torneios. Anos e torneios são identificados pelos dados oficiais.</p><button className="button button-primary" onClick={() => navigate('nova')}>Fazer uma consulta<Icon name="arrow" size={17} /></button></section> : <>
+      <section className="champion-card" aria-labelledby="champion-title"><div className="champion-emblem"><Icon name="trophy" size={58} /></div><div className="champion-copy"><span className="eyebrow">{winners.length > 1 ? 'CAMPEÕES EMPATADOS' : winners.length ? '1º COLOCADO' : 'CLASSIFICAÇÃO EM ABERTO'} / {data.ano}</span><h2 id="champion-title">{winners.length ? winners.map(winner => winner.time).join(' & ') : 'Sem ganhador definido'}</h2><p>{data.torneio === 'sem-identificacao' ? 'Sem torneio informado' : data.torneio} · {data.total_partidas} {data.total_partidas === 1 ? 'partida salva' : 'partidas salvas'}</p><span className="champion-caption">Resultados das partidas disponíveis no seu histórico.</span></div>{winners.length > 0 && <div className="champion-stats"><div><strong>{winners[0].vitorias}</strong><span>Vitórias{winners.length > 1 ? ' por time' : ''}</span></div><div><strong>{winners[0].kills}</strong><span>Abates{winners.length > 1 ? ' por time' : ''}</span></div><div><strong>{currency(winners[0].premio_rs)}</strong><span>Prêmio{winners.length > 1 ? ' por time' : ' do time'}</span></div></div>}</section>
+      <div className="ranking-rules"><span><Icon name="check" size={16} /><strong>1º</strong> Mais vitórias</span><span><Icon name="check" size={16} /><strong>Desempate</strong> Mais abates</span><span><Icon name="check" size={16} /><strong>Empate completo</strong> Prêmios das posições divididos igualmente</span></div>
+      <section className="panel tournament-ranking" aria-labelledby="tournament-ranking-title"><div className="panel-heading"><div><span className="eyebrow">O CAMINHO ATÉ O PÓDIO</span><h2 id="tournament-ranking-title">Classificação do torneio</h2></div><span className="badge badge-green">{data.classificacao.length} times</span></div><div className="table-scroll"><table><caption className="sr-only">Classificação por vitórias, com desempate por abates totais</caption><thead><tr><th scope="col">Posição</th><th scope="col">Time</th><th scope="col">Vitórias</th><th scope="col">Abates totais</th><th scope="col">Rateio do prêmio</th><th scope="col">Prêmio do time</th></tr></thead><tbody>{data.classificacao.map(team => <tr key={team.time} className={team.posicao === 1 ? 'champion-table-row' : ''}><td><span className={`rank-number rank-${team.posicao}`}>{String(team.posicao).padStart(2, '0')}</span></td><td><strong>{team.time}</strong>{team.posicao === 1 && <Icon name="trophy" size={14} />}</td><td>{team.vitorias}</td><td>{team.kills}</td><td>{new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 2, style: 'percent' }).format(team.percentual)}</td><td className="prize-value">{currency(team.premio_rs)}</td></tr>)}</tbody></table></div><p className="tournament-table-note">Base de {currency(10000)} por torneio: 50%, 30% e 20% para as posições premiadas. O critério escolhido define a divisão entre os jogadores de cada time.</p></section>
+      <PrizeResults classificacao={data.classificacao} premios={data.premios} showRanking={false} idPrefix="torneio" />
+    </>)}
+  </>;
+}

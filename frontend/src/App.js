@@ -3,10 +3,11 @@ import Icon from './components/Icon';
 import AboutPage from './pages/AboutPage';
 import HistoryPage from './pages/HistoryPage';
 import NewQueryPage from './pages/NewQueryPage';
+import WinnersPage from './pages/WinnersPage';
 import useCsvLookup from './hooks/useCsvLookup';
 import './App.css';
 
-const tabs = [['sobre', 'Sobre o site'], ['historico', 'Histórico'], ['nova', 'Nova consulta']];
+const tabs = [['sobre', 'Sobre o site'], ['historico', 'Histórico'], ['ganhadores', 'Ganhadores'], ['nova', 'Nova consulta']];
 export default function App() {
   const [tab, setTab] = useState('sobre');
   const [file, setFile] = useState(null);
@@ -19,6 +20,7 @@ export default function App() {
     <main id="main-content" className="main-content">
       {tab === 'sobre' && <AboutPage navigate={setTab} />}
       {tab === 'historico' && <HistoryPage navigate={setTab} />}
+      {tab === 'ganhadores' && <WinnersPage navigate={setTab} />}
       <div hidden={tab !== 'nova'}><NewQueryPage lookup={lookup} file={file} setFile={setFile} criterio={criterio} setCriterio={setCriterio} /></div>
     </main>
     <footer className="site-footer"><span><strong>Tournament Hub</strong> · Dados claros. Decisões justas.</span><span>PowerRev · Painel da Maria Clara</span></footer>

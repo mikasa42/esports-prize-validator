@@ -36,8 +36,8 @@ const match = (id, origem = 'api') => ({ match_id_externo: id, origem, data_part
   confronto: 'Alpha vs Beta', participantes: [{ time_nick: 'Alpha / Ana', minutos: 35, kills: 12, venceu: true }] });
 const result = (partidas, extra = {}) => ({ total_solicitado: partidas.length, partidas, falhas: [], classificacao: [], premios: null, ...extra });
 
-test('abre com informações e três opções na navegação horizontal', () => {
-  expect(container.querySelectorAll('nav button')).toHaveLength(3);
+test('abre com informações e quatro opções na navegação horizontal', () => {
+  expect(container.querySelectorAll('nav button')).toHaveLength(4);
   expect(container.querySelector('nav [aria-current="page"]').textContent).toBe('Sobre o site');
   expect(container.textContent).toContain('Cada partida conta.');
   expect(axios.get).not.toHaveBeenCalled();
@@ -164,4 +164,69 @@ test('ignora resposta de upload cancelado ao trocar de arquivo', async () => {
   expect(config.signal.aborted).toBe(true);
   await act(async () => resolveUpload({ data: result([match('MATCH-101')]) }));
   expect(container.querySelector('.matches-table')).toBeNull();
+});
+
+const winnersResult = (extra = {}) => ({
+  anos: [2026, 2025], torneios: ['T1', 'T2'], ano: 2026, torneio: 'T1', total_partidas: 2,
+  ganhadores: [{ time: 'Beta', posicao: 1, vitorias: 1, kills: 30, premio_rs: 5000, percentual: 0.5 }],
+  classificacao: [{ time: 'Beta', posicao: 1, vitorias: 1, kills: 30, premio_rs: 5000, percentual: 0.5 }],
+  premios: { criterio_utilizado: 'minutos', premios_times: [], premio_jogadores: [
+    { time: 'Beta', jogador: 'B', total_minutos: 40, premio_rs: 5000 }] }, ...extra,
+});
+
+test('mostra ganhador, classificação e rateio do torneio anual', async () => {
+  axios.get.mockResolvedValue({ data: winnersResult() });
+  await navigate('Ganhadores');
+  expect(axios.get).toHaveBeenLastCalledWith('/api/ganhadores', expect.objectContaining({ params: { criterio: 'minutos' } }));
+  expect(container.querySelector('#champion-title').textContent).toBe('Beta');
+  expect(container.querySelector('.tournament-ranking').textContent).toContain('Abates totais');
+  expect(container.querySelector('.champion-stats').textContent).toContain('30');
+  expect(container.querySelector('.prize-panel').textContent).toContain('Minutos jogados');
+  expect(container.querySelector('.ranking-rules').textContent).toContain('Prêmios das posições divididos igualmente');
+});
+
+test('trocar ano limpa torneio e alterar critério solicita novo rateio', async () => {
+  axios.get.mockResolvedValue({ data: winnersResult() });
+  await navigate('Ganhadores');
+  await act(async () => {
+    const input = container.querySelector('[aria-label="Torneio"]');
+    input.value = 'T2'; input.dispatchEvent(new Event('change', { bubbles: true }));
+  });
+  expect(axios.get).toHaveBeenLastCalledWith('/api/ganhadores', expect.objectContaining({ params: { torneio: 'T2', criterio: 'minutos' } }));
+  axios.get.mockResolvedValue({ data: winnersResult({ ano: 2025, torneios: ['T1'] }) });
+  await act(async () => {
+    const input = container.querySelector('[aria-label="Ano do torneio"]');
+    input.value = '2025'; input.dispatchEvent(new Event('change', { bubbles: true }));
+  });
+  expect(axios.get).toHaveBeenLastCalledWith('/api/ganhadores', expect.objectContaining({ params: { ano: 2025, criterio: 'minutos' } }));
+  axios.get.mockResolvedValue({ data: winnersResult({ ano: 2025, premios: { criterio_utilizado: 'kills', premio_jogadores: [] } }) });
+  await act(async () => {
+    const input = container.querySelector('[aria-label="Critério de rateio dos ganhadores"]');
+    input.value = 'kills'; input.dispatchEvent(new Event('change', { bubbles: true }));
+  });
+  expect(axios.get).toHaveBeenLastCalledWith('/api/ganhadores', expect.objectContaining({ params: { ano: 2025, criterio: 'kills' } }));
+  expect(container.querySelector('.prize-panel').textContent).toContain('RATEIO POR ABATES');
+});
+
+test('exibe todos os campeões empatados sem inventar desempate adicional', async () => {
+  const tied = [
+    { time: 'Alpha', posicao: 1, vitorias: 3, kills: 50, premio_rs: 4000, percentual: 0.4 },
+    { time: 'Beta', posicao: 1, vitorias: 3, kills: 50, premio_rs: 4000, percentual: 0.4 },
+  ];
+  axios.get.mockResolvedValue({ data: winnersResult({ ganhadores: tied, classificacao: tied }) });
+  await navigate('Ganhadores');
+  expect(container.querySelector('#champion-title').textContent).toBe('Alpha & Beta');
+  expect(container.querySelector('.champion-card').textContent).toContain('CAMPEÕES EMPATADOS');
+  expect(container.querySelector('.champion-stats').textContent).toContain('4.000,00');
+  expect(container.querySelectorAll('.rank-number')[1].textContent).toBe('01');
+});
+
+test('mostra vazio e erro dos ganhadores com opção de tentar novamente', async () => {
+  axios.get.mockRejectedValueOnce({ response: { data: { detail: 'Banco indisponível' } } });
+  await navigate('Ganhadores');
+  expect(container.querySelector('[role="alert"]').textContent).toContain('Banco indisponível');
+  axios.get.mockResolvedValueOnce({ data: winnersResult({ anos: [], torneios: [], ano: null, total_partidas: 0, ganhadores: [], classificacao: [], premios: null }) });
+  await click([...container.querySelectorAll('button')].find(button => button.textContent === 'Tentar novamente'));
+  expect(container.textContent).toContain('Nenhum resultado nesta temporada');
+  expect(container.querySelector('#champion-title')).toBeNull();
 });

@@ -22,10 +22,11 @@ verificadas e criadas na inicialização do backend, uma vez por processo.
 
 ## Navegação do painel
 
-O menu horizontal oferece três abas:
+O menu horizontal oferece quatro abas:
 
 - **Sobre o site:** apresenta o fluxo e as regras de premiação.
 - **Histórico:** lista as partidas já salvas no banco, com busca por ID ou confronto.
+- **Ganhadores:** seleciona ano e torneio e mostra líderes, classificação e rateio por critério.
 - **Nova consulta:** permite enviar ou arrastar um CSV e escolher o critério de rateio.
 
 As tabelas de partidas têm páginas de 5, 10 ou 20 itens. Use **Ver jogadores**
@@ -173,3 +174,22 @@ Isso permite estender o cálculo sem modificar `calcular_rateio_premios`.
 A interface HTTP e o frontend continuam oferecendo `minutos` e `kills`;
 para expor uma nova opção ao usuário, registre a estratégia na composição do
 serviço e adicione a opção à validação HTTP e à seleção do frontend.
+
+## Ganhadores por ano e torneio
+
+A aba Ganhadores usa `GET /api/ganhadores`, com filtros opcionais `ano`,
+`torneio` e `criterio` (`minutos` ou `kills`). O ano vem da data oficial da
+partida, e o torneio vem de `tournamentId`. O padrão é o ano mais recente salvo.
+A classificação usa todas as partidas salvas do grupo selecionado, sem limite
+de página e sem novas chamadas à API oficial. É uma classificação das partidas
+disponíveis no histórico; não atesta que um torneio já terminou.
+
+A ordem dos times considera vitórias por partida e depois a soma dos abates
+de todos os seus jogadores, incluindo partidas perdidas. O critério de rateio
+altera somente a divisão interna do prêmio entre jogadores.
+
+Se vitórias e abates também empatarem, os times compartilham a posição e dividem
+igualmente a premiação das posições ocupadas. Um empate entre 1º e 2º divide
+50% + 30% em 40% para cada time; um empate entre 3º e 4º divide 20% + 0% em
+10% para cada time. Times sem vitórias continuam visíveis na classificação,
+mas não recebem prêmio, preservando a elegibilidade anterior.

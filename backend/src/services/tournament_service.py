@@ -1,5 +1,5 @@
 """Classificação e rateio calculados em memória com os dados retornados pela API."""
-
+from itertools import groupby
 from typing import Mapping, Optional
 
 from src.services.rateio_criteria import CRITERIOS_PADRAO, CriterioRateio
@@ -9,76 +9,71 @@ class TournamentService:
     def __init__(self, criterios: Optional[Mapping[str, CriterioRateio]] = None):
         self._criterios = {**CRITERIOS_PADRAO, **(criterios or {})}
 
-    def calcular_vitorias_por_time(self, dados) -> dict:
-        """Calcula o total de vitórias por time para definir a colocação."""
-        df = dados
-        
-        # Filtra apenas linhas onde o time venceu ('Sim')
-        # Agrupa por time e conta partidas únicas ou ocorrências
-        vitorias = df[df['Venceu?'].str.strip().str.lower() == 'sim'].groupby('time')['ID Partida'].nunique().reset_index()
-        vitorias.columns = ['time', 'vitorias']
-        
-        # Ordena da maior para a menor quantidade de vitórias
-        vitorias = vitorias.sort_values(by='vitorias', ascending=False)
-        return vitorias.to_dict(orient='records')
+    def classificar_times(self, dados) -> list:
+        """Vitórias por partida, depois abates totais; empate completo divide a posição."""
+        kills = dados.groupby('time')['Kills'].sum().rename('kills')
+        wins = dados[dados['Venceu?'].str.strip().str.lower() == 'sim'].groupby('time')['ID Partida'].nunique().rename('vitorias')
+        ranking = kills.to_frame().join(wins).fillna({'vitorias': 0}).reset_index()
+        ranking['vitorias'] = ranking['vitorias'].astype(int)
+        ranking = ranking.sort_values(['vitorias', 'kills', 'time'], ascending=[False, False, True])
+        records = ranking.to_dict(orient='records')
+        position = 0
+        previous = None
+        for index, row in enumerate(records):
+            score = (row['vitorias'], row['kills'])
+            if score != previous:
+                position = index + 1
+            row['posicao'] = position
+            previous = score
+        return records
+
+    def calcular_vitorias_por_time(self, dados) -> list:
+        return [{'time': row['time'], 'vitorias': row['vitorias']}
+                for row in self.classificar_times(dados) if row['vitorias'] > 0]
 
     def calcular_rateio_premios(self, dados, premio_total: float = 10000.00, criterio: str = 'minutos') -> dict:
-        """
-        Calcula a distribuição do prêmio total (ex: R$ 10.000,00) seguindo a regra:
-        - 1º lugar: 50%
-        - 2º lugar: 30%
-        - 3º lugar: 20%
-        Dentro do time, divide proporcionalmente usando a estratégia registrada.
+        """Divide 50%, 30% e 20% entre o pódio, e rateia por estratégia dentro do time.
+
+        Times empatados em vitórias e kills dividem os valores das posições ocupadas.
+        Se o empate alcançar uma posição sem prêmio, sua parcela é zero.
         """
         try:
             estrategia = self._criterios[criterio]
         except KeyError:
             raise ValueError(f'Critério de rateio desconhecido: {criterio}') from None
 
-        df = dados
-
-        # 1. Calcula vitórias por time para definir o pódio
-        vitorias_por_time = df[df['Venceu?'].str.strip().str.lower() == 'sim'].groupby('time')['ID Partida'].nunique().reset_index()
-        vitorias_por_time.columns = ['time', 'vitorias']
-        vitorias_por_time = vitorias_por_time.sort_values(by='vitorias', ascending=False).reset_index(drop=True)
-        
-        # Atribuição das porcentagens do prêmio por colocação
-        # 1º = 50%, 2º = 30%, 3º = 20%
+        ranking = [row for row in self.classificar_times(dados) if row['vitorias'] > 0]
         percentuais = [0.50, 0.30, 0.20]
-        premio_por_time = {}
-        
-        for index, row in vitorias_por_time.iterrows():
-            if index < len(percentuais):
-                premio_por_time[row['time']] = premio_total * percentuais[index]
-            else:
-                premio_por_time[row['time']] = 0.0  # Demais posições não levam prêmio principal
+        premios_times = []
+        index = 0
+        for _, group in groupby(ranking, key=lambda row: (row['vitorias'], row['kills'])):
+            tied = list(group)
+            percentual = sum(percentuais[index:index + len(tied)]) / len(tied)
+            for row in tied:
+                premios_times.append({**row, 'percentual': percentual,
+                                      'premio_rs': round(premio_total * percentual, 2)})
+            index += len(tied)
 
         resultados_jogadores = []
-        
-        # 2. Rateio interno do prêmio do time para cada jogador
-        for time_nome, premio_time in premio_por_time.items():
+        for team in premios_times:
+            # Mantém precisão no cálculo; arredonda somente os valores de exibição.
+            premio_time = premio_total * team['percentual']
             if premio_time == 0:
                 continue
-                
-            df_time = df[df['time'] == time_nome]
-            
+            df_time = dados[dados['time'] == team['time']]
             totais_jogador = estrategia.calcular_totais(df_time)
-            total_geral_criterio = totais_jogador.sum()
-
+            total = totais_jogador.sum()
             for jogador, pontos in totais_jogador.items():
-                # Evita divisão por zero
-                proporcao = (pontos / total_geral_criterio) if total_geral_criterio > 0 else 0
-                valor_receber = premio_time * proporcao
-                
+                proporcao = pontos / total if total > 0 else 0
                 resultados_jogadores.append({
-                    "time": time_nome,
-                    "jogador": jogador,
-                    f"total_{criterio}": int(pontos),
-                    "premio_rs": round(valor_receber, 2)
+                    'time': team['time'], 'jogador': jogador,
+                    f'total_{criterio}': int(pontos),
+                    'premio_rs': round(premio_time * proporcao, 2),
                 })
-                
+
         return {
-            "criterio_utilizado": criterio,
-            "classificacao_times": vitorias_por_time.to_dict(orient='records'),
-            "premio_jogadores": resultados_jogadores
+            'criterio_utilizado': criterio,
+            'classificacao_times': [{'time': row['time'], 'vitorias': row['vitorias']} for row in ranking],
+            'premios_times': premios_times,
+            'premio_jogadores': resultados_jogadores,
         }

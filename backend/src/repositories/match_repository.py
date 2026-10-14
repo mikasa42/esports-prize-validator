@@ -67,6 +67,19 @@ def listar_partidas_salvas(limit=5, offset=0, busca=''):
         connection.close()
 
 
+def buscar_partidas_dos_torneios():
+    """Retorna todas as partidas salvas para classificação, sem limite de página."""
+    connection = conectar()
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute('SELECT resposta FROM respostas_oficiais ORDER BY id_partida_externo')
+            return [json.loads(row['resposta']) for row in cursor.fetchall()]
+    except pymysql.MySQLError as err:
+        raise BancoIndisponivel('Não foi possível carregar os torneios salvos.') from err
+    finally:
+        connection.close()
+
+
 def salvar_partida(partida_data):
     """Persiste a resposta completa e as estatísticas em uma única transação."""
     connection = conectar()
