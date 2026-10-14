@@ -140,3 +140,23 @@ MYSQL_TEST_DATABASE=esports_backend_test ../.venv/bin/python -m unittest discove
 
 Esse modo limpa a tabela `partidas` no banco indicado antes de cada teste;
 use apenas um banco dedicado a testes e conceda acesso ao usuário configurado.
+
+## Extender os critérios de rateio
+
+`TournamentService` recebe estratégias que implementam `CriterioRateio`,
+em `backend/src/services/rateio_criteria.py`. Cada estratégia retorna uma
+Series do pandas com o peso total por jogador. O serviço aplica a proporção
+sobre o prêmio do time, mantendo o pódio de 50%, 30% e 20%.
+
+Para adicionar um critério, implemente `calcular_totais(dados)` em uma nova
+classe e injete uma instância ao construir o serviço:
+
+```python
+service = TournamentService(criterios={'novo': MeuCriterio()})
+resultado = service.calcular_rateio_premios(dados, criterio='novo')
+```
+
+Isso permite estender o cálculo sem modificar `calcular_rateio_premios`.
+A interface HTTP e o frontend continuam oferecendo `minutos` e `kills`;
+para expor uma nova opção ao usuário, registre a estratégia na composição do
+serviço e adicione a opção à validação HTTP e à seleção do frontend.

@@ -1,6 +1,14 @@
 """Classificação e rateio calculados em memória com os dados retornados pela API."""
 
+from typing import Mapping, Optional
+
+from src.services.rateio_criteria import CRITERIOS_PADRAO, CriterioRateio
+
+
 class TournamentService:
+    def __init__(self, criterios: Optional[Mapping[str, CriterioRateio]] = None):
+        self._criterios = {**CRITERIOS_PADRAO, **(criterios or {})}
+
     def calcular_vitorias_por_time(self, dados) -> dict:
         """Calcula o total de vitórias por time para definir a colocação."""
         df = dados
@@ -20,19 +28,22 @@ class TournamentService:
         - 1º lugar: 50%
         - 2º lugar: 30%
         - 3º lugar: 20%
-        E dentro do time, divide proporcionalmente por 'minutos' ou 'kills'.
+        Dentro do time, divide proporcionalmente usando a estratégia registrada.
         """
+        try:
+            estrategia = self._criterios[criterio]
+        except KeyError:
+            raise ValueError(f'Critério de rateio desconhecido: {criterio}') from None
+
         df = dados
-        
-        # Separa a coluna 'Time / Nick' em 'time' e 'jogador'
-        
+
         # 1. Calcula vitórias por time para definir o pódio
         vitorias_por_time = df[df['Venceu?'].str.strip().str.lower() == 'sim'].groupby('time')['ID Partida'].nunique().reset_index()
         vitorias_por_time.columns = ['time', 'vitorias']
         vitorias_por_time = vitorias_por_time.sort_values(by='vitorias', ascending=False).reset_index(drop=True)
         
         # Atribuição das porcentagens do prêmio por colocação
-        # 1º = 50%, 2º = 30%, 3º = 20% (ajustando se houver menos times)
+        # 1º = 50%, 2º = 30%, 3º = 20%
         percentuais = [0.50, 0.30, 0.20]
         premio_por_time = {}
         
@@ -51,16 +62,10 @@ class TournamentService:
                 
             df_time = df[df['time'] == time_nome]
             
-            # Agrupa os dados do jogador no time (soma de minutos ou kills)
-            coluna_criterio = 'Minutos' if criterio == 'minutos' else 'Kills'
-            totais_jogador = df_time.groupby('jogador')[coluna_criterio].sum().reset_index()
-            
-            total_geral_criterio = totais_jogador[coluna_criterio].sum()
-            
-            for _, j_row in totais_jogador.iterrows():
-                jogador = j_row['jogador']
-                pontos = j_row[coluna_criterio]
-                
+            totais_jogador = estrategia.calcular_totais(df_time)
+            total_geral_criterio = totais_jogador.sum()
+
+            for jogador, pontos in totais_jogador.items():
                 # Evita divisão por zero
                 proporcao = (pontos / total_geral_criterio) if total_geral_criterio > 0 else 0
                 valor_receber = premio_time * proporcao
