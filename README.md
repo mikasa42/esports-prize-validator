@@ -47,13 +47,17 @@ MATCH-1001
 MATCH-1002
 ```
 
-Os IDs são normalizados. Cada linha é resolvida sequencialmente. IDs já salvos não consultam a API. Hífens, espaços,
+Os IDs são normalizados e agrupados antes das consultas. Cada ID distinto é
+resolvido uma única vez por CSV, na ordem da primeira ocorrência, mesmo se a
+consulta falhar. Nove linhas com o mesmo ID geram uma única busca e um único
+resultado. IDs já salvos não consultam a API. Hífens, espaços,
 maiúsculas e zeros extras são normalizados: `match–1002` corresponde a
 `MATCH-1002`. A tela mostra todos os jogadores retornados pela API.
 
 O endpoint é `POST /api/consultar-csv`, com os campos multipart `arquivo` e
 `criterio` (`minutos` ou `kills`). Ele retorna `partidas`, `falhas`,
-`total_solicitado`, `classificacao` e `premios`. Todos os cálculos usam somente
+`total_solicitado`, `classificacao` e `premios`. `total_solicitado` conta os IDs
+distintos, sem incluir linhas repetidas. Todos os cálculos usam somente
 os dados oficiais dos IDs solicitados e são feitos em memória.
 Se alguns IDs não forem encontrados ou a API falhar, as partidas disponíveis
 continuam visíveis. Classificação e premiações ficam vazias até todos os IDs
@@ -104,7 +108,7 @@ A data da partida vem de `matchDate` e os minutos de cada jogador vêm de
 A API responde sem atrasos ou falhas artificiais. O campo
 `tempo_resposta_segundos` mede o processamento real da consulta.
 O backend tenta até três vezes em caso de falhas de comunicação.
-As consultas são sequenciais, na ordem do CSV. Use os IDs `MATCH-*`
+As consultas são sequenciais, na ordem da primeira ocorrência de cada ID distinto no CSV. Use os IDs `MATCH-*`
 presentes no campo `matchId` do JSON. Consultas posteriores usam o banco.
 
 ## Testes

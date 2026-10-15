@@ -54,14 +54,14 @@ class LookupTests(unittest.TestCase):
         result = consultar_csv(b'id_partida\nMATCH-202\nMATCH-202\n', 'kills')
         self.assertEqual(api.call_count, 1)
         self.assertTrue(all(call.args == ('MATCH-202',) for call in api.call_args_list))
-        self.assertEqual(result['total_solicitado'], 2)
+        self.assertEqual(result['total_solicitado'], 1)
         self.assertEqual(result['partidas'][0]['origem'], 'api')
         self.assertEqual(result['falhas'], [])
         self.assertEqual(result['premios']['criterio_utilizado'], 'kills')
         self.assertEqual(result['premios']['premio_jogadores'][0]['total_kills'], 4)
         api.side_effect = APIOficialIndisponivel('Offline')
         again = consultar_csv(b'ID Partida\nMATCH-202\n', 'minutos')
-        self.assertEqual(result['partidas'][1]['origem'], 'banco')
+        self.assertEqual(len(result['partidas']), 1)
         api.side_effect = APIOficialIndisponivel('Offline')
         self.assertEqual(again['partidas'][0]['origem'], 'banco')
         self.assertEqual(api.call_count, 1)
@@ -139,7 +139,7 @@ with patch.object(OfficialApiClient, 'consultar_partida', side_effect=AssertionE
         api.assert_not_called()
 
     @patch.object(OfficialApiClient, 'consultar_partida')
-    def test_requests_run_sequentially_in_csv_row_order(self, api):
+    def test_requests_run_once_in_first_occurrence_order(self, api):
         caller = threading.get_ident()
         completed = []
         def lookup(match_id):
@@ -147,12 +147,36 @@ with patch.object(OfficialApiClient, 'consultar_partida', side_effect=AssertionE
             completed.append(match_id)
             return {**copy.deepcopy(OFFICIAL), 'match_id_externo': match_id}
         api.side_effect = lookup
-        result = consultar_csv(b'id_partida\nID-1\nID-1\nID-2\n', 'minutos')
-        self.assertEqual(completed, ['ID-1', 'ID-2'])
+        result = consultar_csv(b'id_partida\nID-2\nID-1\nID-2\nID-3\nID-1\n', 'minutos')
+        self.assertEqual(completed, ['ID-2', 'ID-1', 'ID-3'])
         self.assertEqual(result['falhas'], [])
         self.assertEqual(result['total_solicitado'], 3)
         self.assertEqual(len(result['partidas']), 3)
-        self.assertEqual(result['premios']['premio_jogadores'][0]['total_minutos'], 40)
+        self.assertEqual(result['premios']['premio_jogadores'][0]['total_minutos'], 60)
+
+    @patch('src.services.match_lookup_service.buscar_partida', return_value=None)
+    @patch.object(OfficialApiClient, 'consultar_partida', return_value=OFFICIAL)
+    def test_nine_equivalent_rows_make_one_database_lookup_and_api_call(self, api, database):
+        variants = ['MATCH-202', 'match-202', ' match–202 '] * 3
+        content = ('id_partida\n' + '\n'.join(variants)).encode('utf-8')
+        result = consultar_csv(content, 'kills')
+        database.assert_called_once_with('MATCH-202')
+        api.assert_called_once_with('MATCH-202')
+        self.assertEqual(result['total_solicitado'], 1)
+        self.assertEqual(len(result['partidas']), 1)
+        self.assertEqual(result['premios']['premio_jogadores'][0]['total_kills'], 4)
+
+    @patch.object(OfficialApiClient, 'consultar_partida')
+    def test_repeated_failed_ids_are_consulted_and_reported_only_once(self, api):
+        for exception in (PartidaNaoEncontrada('ausente'), APIOficialIndisponivel('offline')):
+            with self.subTest(exception=type(exception).__name__):
+                api.reset_mock()
+                api.side_effect = exception
+                result = consultar_csv(b'id_partida\n' + b'MATCH-404\n' * 9, 'minutos')
+                api.assert_called_once_with('MATCH-404')
+                self.assertEqual(result['total_solicitado'], 1)
+                self.assertEqual(len(result['falhas']), 1)
+                self.assertEqual(result['partidas'], [])
 
     def test_lookup_routes_are_available(self):
         paths = {route.path for route in app.routes}

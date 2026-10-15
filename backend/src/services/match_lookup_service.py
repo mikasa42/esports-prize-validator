@@ -54,8 +54,9 @@ def consultar_id(match_id):
 
 
 def consultar_csv(content, criterio):
-    ids = ler_ids(content)
-    # Resolve cada linha em sequência, reutilizando partidas já salvas.
+    # Agrupa após normalizar, preservando a ordem da primeira ocorrência de cada ID.
+    ids = list(dict.fromkeys(ler_ids(content)))
+    # Resolve cada partida uma única vez, inclusive quando a consulta falha.
     results = [consultar_id(match_id) for match_id in ids]
     found = [r for r in results if 'erro' not in r]
     errors = [r for r in results if 'erro' in r]
@@ -63,9 +64,7 @@ def consultar_csv(content, criterio):
                 'classificacao': [], 'premios': None}
     if found and not errors:
         records = []
-        # Evita contar os mesmos jogadores novamente quando um ID se repete.
-        unique_matches = {match['match_id_externo']: match for match in found}
-        for match in unique_matches.values():
+        for match in found:
             for player in match['participantes']:
                 team, nick = player['time_nick'].split(' / ', 1)
                 records.append({'ID Partida': match['match_id_externo'], 'time': team, 'jogador': nick,

@@ -59,7 +59,7 @@ test('envia CSV e critério e mostra resultados, jogadores e premiações', asyn
   expect(axios.post).toHaveBeenCalledTimes(1);
   expect(axios.get).not.toHaveBeenCalled();
   expect(container.querySelectorAll('.matches-table > tbody > tr')).toHaveLength(2);
-  expect(container.textContent).toContain('API oficial');
+  expect(container.querySelector('.matches-table').textContent).not.toContain('Origem');
   expect(container.textContent).toContain('5.000,00');
   await click(container.querySelector('[aria-label="Ver jogadores de MATCH-101"]'));
   expect(container.querySelector('.players-table').textContent).toContain('Alpha / Ana');
@@ -105,7 +105,7 @@ test('consulta histórico no servidor e busca a próxima página', async () => {
   axios.get.mockResolvedValueOnce({ data: { partidas: [match('MATCH-101', 'banco')], total: 6 } });
   await navigate('Histórico');
   expect(axios.get).toHaveBeenLastCalledWith('/api/historico', expect.objectContaining({ params: { limit: 5, offset: 0, busca: '' } }));
-  expect(container.querySelector('.matches-table').textContent).toContain('Banco local');
+  expect(container.querySelector('.matches-table').textContent).not.toContain('Banco local');
   axios.get.mockResolvedValueOnce({ data: { partidas: [match('MATCH-106', 'banco')], total: 6 } });
   await click(container.querySelector('[aria-label="Próxima página"]'));
   expect(axios.get).toHaveBeenLastCalledWith('/api/historico', expect.objectContaining({ params: { limit: 5, offset: 5, busca: '' } }));
