@@ -341,11 +341,32 @@ npm run check:backend
 npm run build:frontend
 ```
 
-Também é possível executar os testes do backend usando o container:
+### Testes do backend com Docker
+
+Na raiz do projeto, onde está `docker-compose.yml`, com o serviço `backend`
+em execução, rode:
 
 ```bash
 docker compose exec -T backend python -m unittest discover -s tests -v
 ```
+
+Esse comando usa o Python e as dependências do container; não é necessário
+criar `.venv` nem instalar Python na máquina. Se os serviços ainda não estiverem
+iniciados, execute antes:
+
+```bash
+docker compose up -d --build --wait --wait-timeout 180
+```
+
+Ao terminar, `OK` ou `OK (skipped=1)` indica que a suíte passou. O teste com
+MySQL real aparece como `skipped` quando `MYSQL_TEST_DATABASE` não está
+configurada; isso não é uma falha.
+
+Durante os testes, mensagens como `ERROR:root`, tracebacks de JSON inválido
+ou arquivo inexistente e avisos de “Falha na consulta” são esperados: esses
+cenários são provocados para verificar o tratamento de erros e as novas
+tentativas de conexão. Confira o resultado final da suíte. `FAIL`, `ERROR`
+como resultado de um teste ou `FAILED (...)` no resumo indicam falhas.
 
 Os testes comuns usam mocks para o banco e para a API. Cobrem normalização e
 agrupamento dos IDs, persistência simulada, falhas parciais, leitura do JSON,
