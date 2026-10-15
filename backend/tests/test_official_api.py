@@ -71,14 +71,14 @@ class ComparisonTests(unittest.TestCase):
 
 
 class ClientTests(unittest.TestCase):
-    @patch('src.simulator.official_api_client.time.sleep')
     @patch('src.simulator.official_api_client.requests.get')
-    def test_retries_then_returns_database_results(self, get, sleep):
-        ok = Mock(status_code=200)
-        ok.json.return_value = copy.deepcopy(OFFICIAL)
-        get.side_effect = [requests.Timeout(), ok]
-        self.assertEqual(OfficialApiClient.consultar_partida('FN-1')['tentativas_realizadas'], 2)
-        self.assertEqual(get.call_count, 2)
+    @patch.dict('os.environ', {'OFFICIAL_API_URL': 'http://official.test'})
+    def test_success_uses_one_request_without_timeout(self, get):
+        response = Mock(status_code=200)
+        response.json.return_value = copy.deepcopy(OFFICIAL)
+        get.return_value = response
+        self.assertEqual(OfficialApiClient.consultar_partida('FN-1')['tentativas_realizadas'], 1)
+        get.assert_called_once_with('http://official.test/api/partidas/FN-1')
 
     @patch('src.simulator.official_api_client.requests.get')
     def test_missing_match_is_not_retried(self, get):
@@ -87,12 +87,16 @@ class ClientTests(unittest.TestCase):
             OfficialApiClient.consultar_partida('FN-1')
         get.assert_called_once()
 
-    @patch('src.simulator.official_api_client.time.sleep')
-    @patch('src.simulator.official_api_client.requests.get', side_effect=requests.Timeout())
-    def test_retry_limit(self, get, sleep):
-        with self.assertRaises(APIOficialIndisponivel):
-            OfficialApiClient.consultar_partida('FN-1')
-        self.assertEqual(get.call_count, 3)
+    @patch('src.simulator.official_api_client.requests.get')
+    def test_request_errors_are_not_retried(self, get):
+        for error in (requests.Timeout(), requests.ConnectionError(), requests.HTTPError(),
+                      requests.exceptions.JSONDecodeError('invalid', '{', 1)):
+            with self.subTest(error=type(error).__name__):
+                get.reset_mock()
+                get.side_effect = error
+                with self.assertRaises(APIOficialIndisponivel):
+                    OfficialApiClient.consultar_partida('FN-1')
+                get.assert_called_once()
 
     @patch('src.simulator.official_api_client.requests.get')
     def test_normalizes_id_for_http_request_and_response(self, get):

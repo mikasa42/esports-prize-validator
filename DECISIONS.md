@@ -80,21 +80,21 @@ O ID externo é globalmente único no banco. A implementação pressupõe que a 
 não reutilize o mesmo ID para partidas diferentes em anos ou torneios distintos.
 Se essa premissa mudar, a identidade e as chaves precisarão incluir esse contexto.
 
-### Sequenciamento e tentativas
+### Sequenciamento e consultas HTTP
 
 As partidas de um arquivo são resolvidas sequencialmente. Não há executor de
 consultas paralelas, fila ou retorno progressivo; o frontend recebe uma resposta
 ao final do processamento. Requisições HTTP independentes podem ser atendidas
 concorrentemente pelo servidor, mas isso não altera a ordem dentro de um CSV.
 
-O cliente usa timeout de conexão de 3 s e leitura de 15 s, com até três tentativas
-para falhas HTTP/de rede. As esperas entre tentativas são de 1 s e 2 s. Resposta
-404 é tratada como partida ausente, sem repetição. Payloads rejeitados pelas
-validações do cliente ou do serviço de consulta não geram novas tentativas.
+O cliente faz uma única chamada HTTP por consulta à API oficial, sem timeout
+explícito, novas tentativas ou esperas programadas. Resposta 404 é tratada como
+partida ausente. Falhas HTTP/de rede são reportadas como indisponibilidade.
+Sem timeout explícito, uma consulta pode permanecer aguardando a API e atrasar
+as próximas partidas do arquivo.
 
-Agrupar nove linhas do mesmo ID significa uma resolução lógica daquele ID.
-Se a API estiver indisponível, as tentativas de recuperação dessa resolução ainda
-podem gerar até três chamadas HTTP; não são nove consultas independentes.
+Agrupar nove linhas do mesmo ID significa uma resolução lógica daquele ID,
+com no máximo uma chamada HTTP, caso a partida ainda não esteja no banco.
 
 ### Resultados parciais
 

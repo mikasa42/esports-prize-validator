@@ -242,10 +242,10 @@ SQLAlchemy, atrasos artificiais ou falhas aleatórias.
 | `players[].kills`, `deaths`, `assists` | Estatísticas correspondentes |
 | `winnerTeam` | `venceu` de cada participante |
 
-O cliente do backend mantém até três tentativas para falhas HTTP/de rede,
-com timeout de conexão de 3 s, leitura de 15 s e esperas de 1 s e 2 s entre
-as tentativas. ID ausente (404) e payload rejeitado não são repetidos.
-Isso trata falhas reais; o servidor não injeta falhas ou espera deliberadamente.
+O cliente do backend faz uma única chamada HTTP por consulta à API oficial,
+sem timeout explícito, novas tentativas ou esperas programadas. ID ausente
+(404) é tratado como partida não encontrada; falhas HTTP/de rede são reportadas
+como indisponibilidade da API. O servidor não injeta falhas ou espera deliberadamente.
 
 ### Persistência
 
@@ -363,9 +363,8 @@ MySQL real aparece como `skipped` quando `MYSQL_TEST_DATABASE` não está
 configurada; isso não é uma falha.
 
 Durante os testes, mensagens como `ERROR:root`, tracebacks de JSON inválido
-ou arquivo inexistente e avisos de “Falha na consulta” são esperados: esses
-cenários são provocados para verificar o tratamento de erros e as novas
-tentativas de conexão. Confira o resultado final da suíte. `FAIL`, `ERROR`
+ou arquivo inexistente são esperados: esses cenários são provocados para
+verificar o tratamento de erros. Confira o resultado final da suíte. `FAIL`, `ERROR`
 como resultado de um teste ou `FAILED (...)` no resumo indicam falhas.
 
 Os testes comuns usam mocks para o banco e para a API. Cobrem normalização e
@@ -453,7 +452,7 @@ backend/src/
   services/tournament_service.py    Classificação e distribuição do prêmio
   services/rateio_criteria.py       Estratégias de minutos e kills
   services/tournament_winners_service.py  Agrupamento por ano/torneio
-  simulator/official_api_client.py  Cliente HTTP com tentativas
+  simulator/official_api_client.py  Cliente HTTP da API oficial
   simulator/official_api_server.py  Simulador FastAPI baseado em JSON
 frontend/src/
   App.js                           Navegação entre as quatro abas
