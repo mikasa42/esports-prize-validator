@@ -181,6 +181,8 @@ with patch.object(OfficialApiClient, 'consultar_partida', side_effect=AssertionE
     def test_lookup_routes_are_available(self):
         paths = {route.path for route in app.routes}
         self.assertIn('/api/partidas/{match_id}', paths)
+        self.assertIn('/api/upload', paths)
+        self.assertNotIn('/api/consultar-csv', paths)
         self.assertNotIn('/api/importar-csv', paths)
         self.assertNotIn('/api/verificar-partidas', paths)
 

@@ -53,7 +53,7 @@ test('envia CSV e critério e mostra resultados, jogadores e premiações', asyn
   await click(container.querySelector('input[value="kills"]'));
   const file = await submit();
   const [url, form] = axios.post.mock.calls[0];
-  expect(url).toBe('/api/consultar-csv');
+  expect(url).toBe('/api/upload');
   expect(form.get('arquivo')).toBe(file);
   expect(form.get('criterio')).toBe('kills');
   expect(axios.post).toHaveBeenCalledTimes(1);

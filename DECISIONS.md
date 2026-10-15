@@ -40,7 +40,7 @@ flowchart LR
 
 ### CSV como lista de IDs, sem vínculo com torneio
 
-O endpoint `POST /api/consultar-csv` recebe os campos multipart `arquivo` e `criterio` (`minutos` ou `kills`). O CSV deve ser UTF-8, ter até 10 MB e conter `id_partida` ou `ID Partida`. Não há campo de nome ou ID de torneio.
+O endpoint `POST /api/upload` recebe os campos multipart `arquivo` e `criterio` (`minutos` ou `kills`). O CSV deve ser UTF-8, ter até 10 MB e conter `id_partida` ou `ID Partida`. Não há campo de nome ou ID de torneio.
 
 Somente os IDs do arquivo orientam as consultas; as demais colunas não são comparadas nem usadas como fonte das estatísticas. Isso permite consultar partidas de diferentes torneios no mesmo envio e obter todos os jogadores retornados pela API, mesmo quando o CSV contém dados incompletos.
 

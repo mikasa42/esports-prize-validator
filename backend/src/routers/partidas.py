@@ -48,7 +48,7 @@ def consultar_partida(match_id: str):
     return result
 
 
-@router.post('/consultar-csv')
+@router.post('/upload')
 def consultar_partidas_csv(
     arquivo: UploadFile = File(...),
     criterio: Literal['minutos', 'kills'] = Form('minutos'),

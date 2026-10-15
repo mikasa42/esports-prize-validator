@@ -54,7 +54,7 @@ resultado. IDs já salvos não consultam a API. Hífens, espaços,
 maiúsculas e zeros extras são normalizados: `match–1002` corresponde a
 `MATCH-1002`. A tela mostra todos os jogadores retornados pela API.
 
-O endpoint é `POST /api/consultar-csv`, com os campos multipart `arquivo` e
+O endpoint é `POST /api/upload`, com os campos multipart `arquivo` e
 `criterio` (`minutos` ou `kills`). Ele retorna `partidas`, `falhas`,
 `total_solicitado`, `classificacao` e `premios`. `total_solicitado` conta os IDs
 distintos, sem incluir linhas repetidas. Todos os cálculos usam somente

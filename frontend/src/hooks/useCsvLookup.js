@@ -27,7 +27,7 @@ export default function useCsvLookup() {
     form.append('criterio', criterio);
     setState({ status: 'loading', data: null, error: '' });
     try {
-      const { data } = await axios.post(`${API_URL}/api/consultar-csv`, form, { signal: controller.signal });
+      const { data } = await axios.post(`${API_URL}/api/upload`, form, { signal: controller.signal });
       if (!controller.signal.aborted) setState({ status: 'success', data, error: '' });
     } catch (error) {
       if (controller.signal.aborted) return;
