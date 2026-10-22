@@ -1,6 +1,7 @@
 import React from 'react';
 
 const paths = {
+  info: <><circle cx="12" cy="12" r="9" /><path d="M12 11v6m0-10v.1" /></>,
   arrow: <><path d="M5 12h14M13 6l6 6-6 6" /></>,
   upload: <><path d="M12 16V3m-5 5 5-5 5 5M4 15v5h16v-5" /></>,
   file: <><path d="M14 3H5v18h14V8l-5-5Z" /><path d="M14 3v5h5M8 13h8M8 17h5" /></>,
