@@ -22,3 +22,22 @@ dist/
 .DS_Store
 .vscode/
 .idea/
+
+# Configurações e credenciais locais (manter exemplos versionáveis)
+.env
+.env.*
+!.env.example
+!.env.*.example
+.aws/
+
+# Relatórios e caches de testes
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage/
+
+# Logs e backups locais do banco (preservar schema.sql)
+*.log
+/backup.sql
+/backups/
