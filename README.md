@@ -5,6 +5,12 @@ MySQL e calcular classificação e premiações por minutos jogados ou abates.
 O frontend tem quatro abas: **Sobre o site**, **Histórico**, **Ganhadores** e
 **Nova consulta**.
 
+A tela inicial apresenta o login. A autenticação por conta ainda não está
+implementada; use **Explorar demonstração** para acessar o painel existente.
+O formulário não envia nem armazena credenciais. Esse acesso não protege as
+APIs, e o histórico continua compartilhado. No rodapé do painel, **Voltar ao
+login** retorna à tela inicial.
+
 ## 1. Rodar em outra máquina com Docker
 
 Este é o caminho recomendado. Não é necessário instalar Python, Node.js ou

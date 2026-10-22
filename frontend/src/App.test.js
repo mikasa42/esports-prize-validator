@@ -13,6 +13,7 @@ beforeEach(async () => {
   document.body.appendChild(container);
   root = createRoot(container);
   await act(async () => root.render(<App />));
+  await act(async () => [...container.querySelectorAll('button')].find(button => button.textContent.includes('Explorar demonstração')).click());
 });
 afterEach(async () => {
   await act(async () => root.unmount());
