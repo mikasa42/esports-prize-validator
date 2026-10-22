@@ -1,26 +1,16 @@
 """Consulta partidas salvas e persiste respostas válidas da API oficial."""
-import io
 
 import pandas as pd
 from src.match_ids import normalizar_id_partida
+from src.services.csv_comparison_service import ler_csv, comparar_csv
 from src.simulator.official_api_client import OfficialApiClient, APIOficialIndisponivel, PartidaNaoEncontrada
 from src.services.tournament_service import TournamentService
 from src.repositories.match_repository import buscar_partida, salvar_partida
 
 
 def ler_ids(content):
-    text = content.decode('utf-8-sig')
-    if '\n' not in text.rstrip('\n') and '\\r\\n' in text:
-        text = text.replace('\\r\\n', '\n')
-    df = pd.read_csv(io.StringIO(text), dtype=str)
-    df.columns = df.columns.str.strip()
-    column = 'id_partida' if 'id_partida' in df.columns else 'ID Partida'
-    if column not in df or df.empty or df[column].isna().any():
-        raise ValueError('O CSV deve conter a coluna id_partida ou ID Partida, com IDs preenchidos.')
-    ids = [normalizar_id_partida(value) for value in df[column]]
-    if any(not value or len(value) > 100 for value in ids):
-        raise ValueError('ID de partida vazio ou maior que 100 caracteres.')
-    return ids
+    _, rows = ler_csv(content)
+    return [row['match_id_externo'] for row in rows]
 
 
 def consultar_id(match_id):
@@ -55,13 +45,15 @@ def consultar_id(match_id):
 
 def consultar_csv(content, criterio):
     # Agrupa após normalizar, preservando a ordem da primeira ocorrência de cada ID.
-    ids = list(dict.fromkeys(ler_ids(content)))
+    columns, rows = ler_csv(content)
+    ids = list(dict.fromkeys(row['match_id_externo'] for row in rows))
     # Resolve cada partida uma única vez, inclusive quando a consulta falha.
     results = [consultar_id(match_id) for match_id in ids]
     found = [r for r in results if 'erro' not in r]
     errors = [r for r in results if 'erro' in r]
     response = {'partidas': found, 'falhas': errors, 'total_solicitado': len(ids),
-                'classificacao': [], 'premios': None}
+                'classificacao': [], 'premios': None,
+                'comparacao_csv': comparar_csv(columns, rows, results)}
     if found and not errors:
         records = []
         for match in found:

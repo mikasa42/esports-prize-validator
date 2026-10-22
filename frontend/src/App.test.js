@@ -232,3 +232,16 @@ test('mostra vazio e erro dos ganhadores com opção de tentar novamente', async
   expect(container.textContent).toContain('Nenhum resultado nesta temporada');
   expect(container.querySelector('#champion-title')).toBeNull();
 });
+
+
+test('upload apresenta conferência CSV x oficial junto aos resultados e premiação', async () => {
+  await navigate('Nova consulta');
+  axios.post.mockResolvedValue({ data: result([match('MATCH-101')], {
+    comparacao_csv: { somente_ids: false, resumo: { total_linhas: 1, conferente: 0, linhas_divergentes: 1, linhas_duplicadas: 0, nao_comparavel: 0, sem_referencia: 0 }, linhas: [{ linha: 2, match_id_externo: 'MATCH-101', jogador: 'Alpha / Ana', origem: 'api', campos: [{ coluna: 'Kills', csv: '999', oficial: 12, status: 'divergente', motivo: '' }] }] },
+  }) });
+  await submit();
+  expect(container.querySelector('.comparison-table').textContent).toContain('999');
+  expect(container.querySelector('.comparison-table').textContent).toContain('12');
+  expect(container.querySelector('.comparison-table').textContent).toContain('Divergência');
+  expect(container.querySelector('.matches-table')).not.toBeNull();
+});

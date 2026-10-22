@@ -190,8 +190,9 @@ o procedimento de backup e restauração ao final deste documento.
 ### Nova consulta
 
 O CSV deve ser UTF-8, ter no máximo 10 MiB e possuir a coluna `id_partida`
-ou `ID Partida`. O separador padrão é vírgula; cada linha precisa de um ID
-preenchido. As demais colunas não fornecem as estatísticas usadas no cálculo.
+ou `ID Partida`. São aceitos vírgula, ponto e vírgula ou tabulação como separadores;
+cada linha precisa de um ID preenchido. Colunas e linhas são preservadas na
+conferência CSV × API. Classificação e premiações usam exclusivamente os dados oficiais.
 Você pode misturar IDs de torneios e anos diferentes no mesmo arquivo.
 
 O backend normaliza os IDs: maiúsculas, espaços, caracteres invisíveis e
@@ -207,7 +208,8 @@ inclusive se esse ID falhar. As partidas distintas são resolvidas em sequência
 2. Se não existir, consulta a API oficial por HTTP.
 3. Valida os participantes, minutos, abates e resultado.
 4. Salva a resposta válida e as estatísticas em uma transação.
-5. Calcula a classificação e o rateio usando as partidas distintas do envio.
+5. Compara cada campo de cada linha do CSV com a resposta oficial disponível.
+6. Calcula a classificação e o rateio usando as partidas distintas do envio e os dados oficiais.
 
 Se alguns IDs falharem, as partidas encontradas continuam disponíveis e são
 salvas. Nesse envio, `classificacao` fica vazia e `premios` fica `null` até
@@ -215,6 +217,69 @@ que não haja falhas. O total solicitado conta IDs distintos, não linhas.
 
 A premiação da **Nova consulta** usa o conjunto daquele CSV, mesmo que misture
 torneios. Para ver a premiação isolada de um torneio anual, use **Ganhadores**.
+
+### Comparação CSV × API oficial
+
+Depois do upload, **Nova consulta** apresenta a tabela **CSV × API oficial**, com
+linha do CSV, ID, jogador, coluna original, valor enviado, valor oficial e status.
+É possível buscar e filtrar campos divergentes, inválidos, ausentes ou sem referência,
+com paginação de 20 campos. Cada linha repetida é mantida na conferência, mas não
+multiplica consultas, partidas ou premiações. Metadados são conferidos em todas
+as linhas, incluindo quando há rodadas diferentes para o mesmo ID.
+
+| Informação | Colunas reconhecidas (exemplos) |
+| --- | --- |
+| Partida | `id_partida`, `ID Partida`, `matchId`, `match_id_externo` |
+| Data | `Data`, `data_partida`, `matchDate` |
+| Rodada | `Rodada`, `round` |
+| Confronto | `Partida`, `confronto` |
+| Torneio | `torneio`, `tournamentId`, `id_torneio` |
+| Equipe | `time`, `equipe`, `team` |
+| Jogador | `jogador`, `nick`, `nickname`, `player` |
+| Equipe e jogador juntos | `time_nick`, `time / jogador` |
+| Minutos jogados | `Minutos`, `minutesPlayed`, `tempo jogado`, `tempo` |
+| Abates | `Kills`, `Kill`, `Abates` |
+| Mortes | `Deaths`, `Mortes` |
+| Assistências | `Assists`, `Assistências` |
+| Resultado individual | `Venceu?`, `resultado`, `win` |
+| Time vencedor | `winnerTeam`, `time vencedor`, `vencedor` |
+
+Cabeçalhos ignoram diferenças de caixa, acentos, espaços e separadores. O valor
+original enviado permanece visível. Para comparar estatísticas individuais, informe
+time e jogador (ou nickname único na partida). Identificação ausente ou ambígua
+impede atribuir a estatística; nenhum jogador é escolhido por aproximação.
+As colunas de identidade, se repetidas com nomes alternativos, precisam concordar.
+Não envie dois cabeçalhos para o ID da partida nem cabeçalhos vazios ou repetidos.
+
+Exemplo de arquivo completo:
+
+```csv
+id_partida,time,jogador,Minutos,Kills,Rodada,Data,torneio,Deaths,Assists,Venceu?
+MATCH-1001,FURIA,chelo,24,12,1,2026-10-01,tournament-55,15,5,Sim
+MATCH-1001,FURIA,FalleN,28,15,1,2026-10-01,tournament-55,11,10,Sim
+```
+
+Números devem ser inteiros não negativos; o tempo é medido em minutos. `30.0`
+e `30` são equivalentes. Em CSV separado por ponto e vírgula, `30,0` também é
+aceito como número. Resultado aceita `Sim`/`Não`, `Vitória`/`Derrota`, `true`/`false`
+ou `1`/`0`. Datas aceitam ISO ou `DD/MM/AAAA`. Se o CSV fornecer apenas a data,
+compara-se o dia, sem exigir horário; timestamps com fuso são comparados em UTC.
+
+Uma coluna sem mapeamento ou um campo ausente na resposta oficial é mostrado
+como **Não comparável**. Valores desconhecidos não são tratados como conferidos.
+CSV com apenas IDs continua aceito, com aviso de que não contém estatísticas para
+conferência. Falhas de consulta preservam os valores enviados como **Sem referência
+oficial**. Campos vazios e formatos inválidos são sinalizados separadamente.
+
+A referência usa a política existente de cache: respostas oficiais previamente
+salvas no MySQL são reutilizadas e identificadas na tela como **Resposta oficial
+salva**. Isso não representa nova consulta à API naquele envio. Divergências não
+alteram estatísticas oficiais, classificação nem premiação. Apenas os campos enviados
+são conferidos; não é exigido que o CSV contenha todo o elenco da partida.
+
+O upload retorna `comparacao_csv`, com `colunas`, `linhas`, `somente_ids` e `resumo`,
+além dos resultados anteriores. A conferência e o arquivo não são persistidos como
+auditoria. Para consultá-los novamente, envie o CSV outra vez.
 
 ### Histórico
 
