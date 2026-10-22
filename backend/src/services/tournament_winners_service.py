@@ -23,7 +23,7 @@ def consultar_ganhadores(ano=None, torneio=None, criterio='minutos'):
     response = {
         'anos': years, 'torneios': tournaments, 'ano': selected_year,
         'torneio': selected_tournament, 'total_partidas': len(selected),
-        'ganhadores': [], 'classificacao': [], 'premios': None,
+        'ganhadores': [], 'classificacao': [], 'premios': None, 'jogadores': [],
         'criterio': criterio,
     }
     if not selected:
@@ -48,5 +48,14 @@ def consultar_ganhadores(ano=None, torneio=None, criterio='minutos'):
                                  for row in ranking]
     response['ganhadores'] = [row for row in response['classificacao'] if row['posicao'] == 1 and row['vitorias'] > 0]
     prizes['premio_jogadores'].sort(key=lambda row: (-row['premio_rs'], row['time'], row['jogador']))
+    awards = {(row['time'], row['jogador']): row['premio_rs'] for row in prizes['premio_jogadores']}
+    for (team, nickname), stats in data.groupby(['time', 'jogador'], sort=True):
+        response['jogadores'].append({
+            'time': team, 'jogador': nickname,
+            'minutos': int(stats['Minutos'].sum()), 'kills': int(stats['Kills'].sum()),
+            'partidas': int(stats['ID Partida'].nunique()),
+            'premio_rs': awards.get((team, nickname), 0),
+        })
+    response['jogadores'].sort(key=lambda row: (-row['premio_rs'], row['time'], row['jogador']))
     response['premios'] = prizes
     return response

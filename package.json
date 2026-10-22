@@ -12,6 +12,9 @@
     "dev:backend": "cd backend && ../.venv/bin/python -m uvicorn src.main:app --reload",
     "dev:frontend": "npm --prefix frontend start",
     "build:frontend": "npm --prefix frontend run build",
-    "check:backend": ".venv/bin/python -m pip check"
+    "check:backend": ".venv/bin/python -m pip check",
+    "dev:public": "npm --prefix frontend-public start",
+    "build:public": "npm --prefix frontend-public run build",
+    "test:public": "npm --prefix frontend-public test -- --runInBand"
   }
 }

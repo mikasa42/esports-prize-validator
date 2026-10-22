@@ -2,6 +2,7 @@
 import asyncio
 import json
 import unittest
+from urllib.parse import urlsplit
 from unittest.mock import patch
 
 import pymysql
@@ -16,6 +17,7 @@ PASSWORD = 'uma senha segura 123'
 
 def http(method, path, data=None, cookie=None, headers=None):
     """Exercita roteamento, dependências, validação e serialização ASGI reais."""
+    url = urlsplit(path)
     body = json.dumps(data).encode() if data is not None else b''
     request_headers = {'content-type': 'application/json', 'x-requested-with': 'TournamentHub', **(headers or {})}
     if cookie:
@@ -32,8 +34,8 @@ def http(method, path, data=None, cookie=None, headers=None):
         async def send(message):
             messages.append(message)
         await app({'type': 'http', 'asgi': {'version': '3.0'}, 'http_version': '1.1',
-                   'method': method, 'scheme': 'http', 'path': path, 'raw_path': path.encode(),
-                   'query_string': b'', 'root_path': '', 'server': ('testserver', 80),
+                   'method': method, 'scheme': 'http', 'path': url.path, 'raw_path': url.path.encode(),
+                   'query_string': url.query.encode(), 'root_path': '', 'server': ('testserver', 80),
                    'client': ('127.0.0.1', 1234),
                    'headers': [(key.encode(), value.encode()) for key, value in request_headers.items()]}, receive, send)
     asyncio.run(run())

@@ -3,5 +3,6 @@
 **/__pycache__
 **/node_modules
 frontend/build
+frontend-public/build
 .idea
 img.png

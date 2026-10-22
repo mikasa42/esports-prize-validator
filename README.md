@@ -533,3 +533,59 @@ frontend/src/
 `verification_service.py` mantém a comparação antiga entre estatísticas do CSV
 e da API, com testes próprios, mas não participa dos endpoints atuais.
 As decisões, limites e possibilidades de extensão estão em [DECISIONS.md](DECISIONS.md).
+
+## Portal público dos jogadores
+
+O projeto tem dois frontends independentes e um backend compartilhado:
+
+```text
+frontend/         Painel administrativo com autenticação (porta 3000)
+frontend-public/  Consulta pública de resultados e premiações (porta 3001)
+backend/          FastAPI e regras de cálculo compartilhadas (porta 8000)
+```
+
+Com Docker, execute `docker compose up -d --build --wait --wait-timeout 180`.
+Acesse **http://localhost:3001** para o portal público. Nenhuma conta é necessária.
+O painel administrativo permanece em **http://localhost:3000**.
+
+O portal oferece seleção de ano e torneio, pódio, busca por nickname ou time,
+paginação e detalhes do cálculo individual. A URL preserva a seleção e a busca
+para compartilhar resultados. Mostra todos os jogadores das partidas disponíveis,
+inclusive os que têm premiação zero. A ordem é valor decrescente, time e nickname.
+
+`GET /api/publico/resultados` aceita os filtros opcionais `ano` e `torneio` e
+retorna apenas dados públicos de competição. Não retorna informações de contas,
+logins, empresas, senhas ou sessões. As APIs administrativas continuam protegidas.
+O Nginx do portal encaminha somente `/api/publico/`, bloqueia escrita e não encaminha
+cookies ou credenciais. Para uma instalação nova, as listas ficam vazias até que
+partidas sejam consultadas pelo painel administrativo.
+
+Os dados são **resultados parciais**, calculados sobre as partidas já salvas. Não há
+publicação de resultados finais nem confirmação de pagamento. `premio_base_rs` é
+o valor de referência, não a soma efetivamente distribuída. O mesmo serviço de
+cálculo é usado pelo painel e pelo portal, incluindo os critérios de desempate.
+
+O critério público é definido pelo servidor em `PUBLIC_PRIZE_CRITERION`:
+`minutos` (padrão) ou `kills`. O visitante não altera esse critério. No painel,
+compare usando o mesmo critério. Para mudar no Docker, configure a variável e
+recrie o backend com `docker compose up -d backend`.
+
+Para desenvolvimento local:
+
+```bash
+npm --prefix frontend-public ci --legacy-peer-deps
+npm run dev:public
+```
+
+O React inicia em **http://localhost:3001** e encaminha `/api` ao backend local
+na porta 8000. Produção usa o proxy Nginx na mesma origem. Opcionalmente,
+`REACT_APP_API_URL` define outra origem de API durante o build; nesse caso, adicione
+a origem pública a `CORS_ORIGINS` no backend. O portal não envia cookies de sessão.
+O login do administrador é acessado diretamente pelo endereço do painel.
+
+Verificações do novo frontend:
+
+```bash
+npm run test:public
+npm run build:public
+```

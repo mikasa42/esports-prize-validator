@@ -45,6 +45,7 @@ services:
     environment:
       OFFICIAL_API_URL: http://official-api:8001
       AUTH_COOKIE_SECURE: ${AUTH_COOKIE_SECURE:-false}
+      PUBLIC_PRIZE_CRITERION: ${PUBLIC_PRIZE_CRITERION:-minutos}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
       MYSQL_HOST: backend-db
       MYSQL_PORT: 3306
@@ -75,6 +76,17 @@ services:
     container_name: tournament-frontend
     ports:
       - "3000:80"
+    restart: always
+
+  frontend-public:
+    build:
+      context: ./frontend-public
+      dockerfile: Dockerfile
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "3001:80"
     restart: always
 
 volumes:

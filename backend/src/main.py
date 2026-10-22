@@ -8,6 +8,7 @@ from fastapi.exceptions import RequestValidationError
 from src.routers.auth import router as auth_router
 from src.repositories.match_repository import BancoIndisponivel
 from src.routers.partidas import router as partidas_router
+from src.routers.publico import router as publico_router
 from src.database.initialization import inicializar_banco
 
 @asynccontextmanager
@@ -27,6 +28,7 @@ app.add_middleware(
 
 app.include_router(auth_router)
 app.include_router(partidas_router)
+app.include_router(publico_router)
 
 
 @app.middleware('http')
