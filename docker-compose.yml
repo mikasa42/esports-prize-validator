@@ -44,6 +44,8 @@ services:
     container_name: tournament-backend
     environment:
       OFFICIAL_API_URL: http://official-api:8001
+      AUTH_COOKIE_SECURE: ${AUTH_COOKIE_SECURE:-false}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
       MYSQL_HOST: backend-db
       MYSQL_PORT: 3306
       MYSQL_DATABASE: ${BACKEND_MYSQL_DATABASE:-esports_backend}

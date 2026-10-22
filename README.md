@@ -5,11 +5,59 @@ MySQL e calcular classificação e premiações por minutos jogados ou abates.
 O frontend tem quatro abas: **Sobre o site**, **Histórico**, **Ganhadores** e
 **Nova consulta**.
 
-A tela inicial apresenta o login. A autenticação por conta ainda não está
-implementada; use **Explorar demonstração** para acessar o painel existente.
-O formulário não envia nem armazena credenciais. Esse acesso não protege as
-APIs, e o histórico continua compartilhado. No rodapé do painel, **Voltar ao
-login** retorna à tela inicial.
+A tela inicial permite **criar conta** e **entrar** com login e senha. O cadastro
+solicita nome, login, senha e empresa. O painel e as APIs de partidas exigem
+uma sessão válida. O histórico permanece compartilhado entre as contas.
+
+### Autenticação
+
+O backend cria automaticamente as tabelas `usuarios`, `sessoes_usuario` e
+`tentativas_autenticacao` ao iniciar, sem apagar as tabelas ou partidas existentes.
+O login é único e normalizado para minúsculas. Aceita de 3 a 100 caracteres:
+letras ASCII, números, ponto, `_`, `@`, `+` e hífen. Nome e empresa são obrigatórios,
+com até 150 caracteres. A senha deve ter entre 12 e 128 caracteres e é armazenada
+como PBKDF2-HMAC-SHA256, com salt aleatório e 600.000 iterações, conforme
+a [referência OWASP para esse algoritmo](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html).
+
+| Método e caminho | Uso |
+| --- | --- |
+| `POST /api/auth/cadastro` | JSON com `nome`, `login`, `senha`, `empresa`. Cria conta e sessão. |
+| `POST /api/auth/login` | JSON com `login`, `senha`. Cria sessão e substitui a sessão atual. |
+| `GET /api/auth/me` | Retorna `id`, `nome`, `login`, `empresa` da sessão. |
+| `POST /api/auth/logout` | Revoga a sessão no banco e remove o cookie. |
+
+A sessão dura 8 horas, fica em cookie `HttpOnly`, `SameSite=Lax`, caminho `/api`,
+e apenas o hash do token fica no banco. Ao recarregar a página, o frontend consulta
+`/api/auth/me`. Sessões vencidas exigem novo login. **Sair da conta** revoga o token
+no servidor. Senhas e hashes não aparecem nas respostas da API, inclusive nos erros
+de validação.
+
+As requisições POST exigem o cabeçalho `X-Requested-With: TournamentHub`.
+O frontend o envia automaticamente. Origens de navegador precisam estar na lista
+`CORS_ORIGINS`; a proteção também vale para uploads. Scripts e clientes HTTP devem
+enviar esse cabeçalho e preservar os cookies entre as chamadas. O Swagger apresenta
+o campo desse cabeçalho nas rotas protegidas. Para usá-lo diretamente pelo navegador,
+inclua também a origem do Swagger em `CORS_ORIGINS`.
+
+Cadastro e login compartilham um limite de 20 requisições a cada 15 minutos por IP,
+persistido no MySQL. Atrás de proxy, clientes que compartilham o mesmo endereço
+percebido pelo backend também compartilham esse limite. O backend não confia em
+cabeçalhos de IP enviados pelo cliente. Respostas: `401` para credenciais ou sessão
+inválidas, `403` para falha na proteção da requisição, `409` para login duplicado,
+`422` para campos inválidos, `429` para excesso de tentativas e `503` para banco
+indisponível.
+
+Em produção com HTTPS, configure `AUTH_COOKIE_SECURE=true` e `CORS_ORIGINS` com
+a origem pública exata. Em desenvolvimento HTTP local, o padrão é `false`.
+As contas têm o mesmo acesso ao histórico; o campo empresa é informativo e não
+implementa separação de dados por organização.
+
+Para validar o fluxo real com Docker, criando e removendo somente uma conta
+temporária de teste:
+
+```bash
+docker compose exec -e AUTH_TEST_BASE_URL=http://frontend backend python -m unittest discover -s tests -p 'test_auth_integration.py' -v
+```
 
 ## 1. Rodar em outra máquina com Docker
 
@@ -63,7 +111,7 @@ que ainda não existem. O simulador lê o JSON que já acompanha o repositório.
 
 ### Primeiro teste pela interface
 
-1. Abra http://localhost:3000 e entre em **Nova consulta**.
+1. Abra http://localhost:3000, clique em **Criar minha conta**, preencha os dados e entre em **Nova consulta**.
 2. Clique em **Baixar CSV de exemplo** ou crie `partidas.csv` com este conteúdo:
 
    ```csv
@@ -93,9 +141,16 @@ Na raiz do projeto, com o `partidas.csv` do exemplo salvo:
 ```bash
 curl --fail http://localhost:8000/
 curl --fail http://localhost:8001/health
-curl --fail -F 'arquivo=@partidas.csv' -F 'criterio=kills' http://localhost:3000/api/upload
-curl --fail 'http://localhost:8000/api/historico?limit=5&offset=0&busca=FURIA'
-curl --fail 'http://localhost:8000/api/ganhadores?ano=2026&torneio=tournament-55&criterio=minutos'
+# Use o login de uma conta criada pela interface. A senha é lida sem eco.
+read -r -p 'Login: ' tournament_login
+read -r -s -p 'Senha: ' tournament_password
+export tournament_login tournament_password
+python3 -c 'import json, os; print(json.dumps({"login": os.environ["tournament_login"], "senha": os.environ["tournament_password"]}))' | curl --fail -c /tmp/tournament-cookies.txt -H 'Content-Type: application/json' -H 'X-Requested-With: TournamentHub' --data-binary @- http://localhost:3000/api/auth/login
+unset tournament_login tournament_password
+curl --fail -b /tmp/tournament-cookies.txt -H 'X-Requested-With: TournamentHub' -F 'arquivo=@partidas.csv' -F 'criterio=kills' http://localhost:3000/api/upload
+curl --fail -b /tmp/tournament-cookies.txt 'http://localhost:3000/api/historico?limit=5&offset=0&busca=FURIA'
+curl --fail -b /tmp/tournament-cookies.txt 'http://localhost:3000/api/ganhadores?ano=2026&torneio=tournament-55&criterio=minutos'
+curl --fail -b /tmp/tournament-cookies.txt -H 'X-Requested-With: TournamentHub' -X POST http://localhost:3000/api/auth/logout
 ```
 
 O upload também pode ser feito pelo Swagger, em **POST /api/upload → Try it out**.
@@ -263,7 +318,7 @@ nas tabelas relacionais. A gravação é transacional. A coluna relacional de da
 
 A primeira resposta válida de cada ID é reutilizada sem expiração ou atualização
 automática. Alterar o JSON do simulador não atualiza partidas já salvas. O arquivo
-CSV original não é persistido. O histórico é compartilhado, sem login por usuário.
+CSV original não é persistido. O histórico é compartilhado entre usuários autenticados.
 O banco precisa existir antes do backend; o Compose cuida dessa criação.
 
 ## 4. Desenvolvimento local com recarga automática
@@ -461,7 +516,7 @@ backend/src/
   simulator/official_api_client.py  Cliente HTTP da API oficial
   simulator/official_api_server.py  Simulador FastAPI baseado em JSON
 frontend/src/
-  App.js                           Navegação entre as quatro abas
+  App.js                           Sessão, login e navegação entre as quatro abas
   pages/                           Telas do painel
   components/                      Tabelas, paginação e premiações
   hooks/                           Requisições, cancelamento e estados da UI

@@ -9,11 +9,12 @@ let root;
 beforeEach(async () => {
   jest.resetAllMocks();
   global.IS_REACT_ACT_ENVIRONMENT = true;
+  axios.get.mockResolvedValueOnce({ data: { id: 1, nome: 'Maria Clara', login: 'maria', empresa: 'PowerRev' } });
   container = document.createElement('div');
   document.body.appendChild(container);
   root = createRoot(container);
   await act(async () => root.render(<App />));
-  await act(async () => [...container.querySelectorAll('button')].find(button => button.textContent.includes('Explorar demonstração')).click());
+  axios.get.mockClear();
 });
 afterEach(async () => {
   await act(async () => root.unmount());

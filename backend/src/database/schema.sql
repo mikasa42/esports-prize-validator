@@ -43,3 +43,31 @@ CREATE TABLE IF NOT EXISTS respostas_oficiais (
     resposta JSON NOT NULL,
     FOREIGN KEY (id_partida_externo) REFERENCES partidas(id_partida_externo) ON DELETE CASCADE
 );
+
+-- Contas da aplicação. Nunca armazenar a senha original.
+CREATE TABLE IF NOT EXISTS usuarios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(150) NOT NULL,
+    login VARCHAR(100) CHARACTER SET ascii COLLATE ascii_bin NOT NULL UNIQUE,
+    senha_hash VARCHAR(255) NOT NULL,
+    empresa VARCHAR(150) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Apenas o hash do token de sessão fica no banco.
+CREATE TABLE IF NOT EXISTS sessoes_usuario (
+    token_hash CHAR(64) CHARACTER SET ascii COLLATE ascii_bin PRIMARY KEY,
+    usuario_id INT NOT NULL,
+    expira_em DATETIME NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_sessoes_expiracao (expira_em),
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+);
+
+-- Limite compartilhado entre processos, por endereço IP e janela de tempo.
+CREATE TABLE IF NOT EXISTS tentativas_autenticacao (
+    chave CHAR(64) CHARACTER SET ascii COLLATE ascii_bin PRIMARY KEY,
+    tentativas INT NOT NULL DEFAULT 1,
+    expira_em DATETIME NOT NULL,
+    INDEX idx_tentativas_expiracao (expira_em)
+);

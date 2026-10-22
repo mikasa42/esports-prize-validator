@@ -1,12 +1,13 @@
 """Entrada HTTP para consultas de partidas e uploads CSV."""
 from typing import Literal
 
-from fastapi import APIRouter, File, Form, HTTPException, UploadFile, Query
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, Query
+from src.routers.auth import usuario_atual, validar_requisicao
 from src.repositories.match_repository import BancoIndisponivel, listar_partidas_salvas
 from src.services.match_lookup_service import consultar_csv, consultar_id
 from src.services.tournament_winners_service import consultar_ganhadores
 
-router = APIRouter(prefix='/api', tags=['Partidas'])
+router = APIRouter(prefix='/api', tags=['Partidas'], dependencies=[Depends(validar_requisicao), Depends(usuario_atual)])
 
 MAX_CSV_BYTES = 10 * 1024 * 1024
 
