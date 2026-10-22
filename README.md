@@ -589,3 +589,10 @@ Verificações do novo frontend:
 npm run test:public
 npm run build:public
 ```
+
+## Desenvolvimento com Git Flow
+
+O trabalho é organizado em `feature/*` → `develop` → `release/*` → `master`.
+Correções urgentes usam `hotfix/*`, com sincronização de volta para `develop`.
+Consulte [CONTRIBUTING.md](CONTRIBUTING.md) para configurar o clone, abrir PRs,
+preparar versões e publicar tags.
