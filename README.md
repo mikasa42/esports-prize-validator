@@ -25,6 +25,14 @@ a [referência OWASP para esse algoritmo](https://cheatsheetseries.owasp.org/che
 | `POST /api/auth/login` | JSON com `login`, `senha`. Cria sessão e substitui a sessão atual. |
 | `GET /api/auth/me` | Retorna `id`, `nome`, `login`, `empresa` da sessão. |
 | `POST /api/auth/logout` | Revoga a sessão no banco e remove o cookie. |
+| `POST /api/auth/perfil` | Atualiza `nome`, `login` e `empresa` do usuário autenticado. |
+| `POST /api/auth/senha` | Recebe `senha_atual` e `nova_senha`. Altera a senha e encerra as outras sessões. |
+
+Após entrar, clique no nome do usuário no cabeçalho para abrir **Editar informações**,
+**Trocar senha** ou **Sair da conta**. As telas de conta permitem atualizar nome, login
+e empresa, ou trocar a senha informando a senha atual e confirmando a nova senha.
+O novo login passa a valer no próximo acesso. A troca de senha mantém a sessão atual
+e revoga todas as outras sessões em uma única transação.
 
 A sessão dura 8 horas, fica em cookie `HttpOnly`, `SameSite=Lax`, caminho `/api`,
 e apenas o hash do token fica no banco. Ao recarregar a página, o frontend consulta
@@ -39,7 +47,7 @@ enviar esse cabeçalho e preservar os cookies entre as chamadas. O Swagger apres
 o campo desse cabeçalho nas rotas protegidas. Para usá-lo diretamente pelo navegador,
 inclua também a origem do Swagger em `CORS_ORIGINS`.
 
-Cadastro e login compartilham um limite de 20 requisições a cada 15 minutos por IP,
+Cadastro, login e troca de senha compartilham um limite de 20 requisições a cada 15 minutos por IP,
 persistido no MySQL. Atrás de proxy, clientes que compartilham o mesmo endereço
 percebido pelo backend também compartilham esse limite. O backend não confia em
 cabeçalhos de IP enviados pelo cliente. Respostas: `401` para credenciais ou sessão
