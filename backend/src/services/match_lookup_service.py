@@ -43,12 +43,16 @@ def consultar_id(match_id):
     return {**official, 'origem': 'api'}
 
 
-def consultar_csv(content, criterio):
+def consultar_csv(content, criterio, progresso=None):
     # Agrupa após normalizar, preservando a ordem da primeira ocorrência de cada ID.
     columns, rows = ler_csv(content)
     ids = list(dict.fromkeys(row['match_id_externo'] for row in rows))
     # Resolve cada partida uma única vez, inclusive quando a consulta falha.
-    results = [consultar_id(match_id) for match_id in ids]
+    results = []
+    for match_id in ids:
+        results.append(consultar_id(match_id))
+        if progresso:
+            progresso(len(results))
     found = [r for r in results if 'erro' not in r]
     errors = [r for r in results if 'erro' in r]
     response = {'partidas': found, 'falhas': errors, 'total_solicitado': len(ids),

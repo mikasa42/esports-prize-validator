@@ -70,7 +70,7 @@ docker compose exec -e AUTH_TEST_BASE_URL=http://frontend backend python -m unit
 ## 1. Rodar em outra máquina com Docker
 
 Este é o caminho recomendado. Não é necessário instalar Python, Node.js ou
-MySQL na máquina: os quatro serviços são executados em containers.
+MySQL na máquina: os serviços são executados em containers, incluindo Redis, worker Celery e Beat.
 
 ### Pré-requisitos
 
@@ -131,7 +131,7 @@ que ainda não existem. O simulador lê o JSON que já acompanha o repositório.
 
 3. Selecione ou arraste o arquivo, escolha **Minutos jogados** ou **Abates**
    e clique em **Consultar partidas**.
-4. O resultado deve mostrar **2 de 2 partidas encontradas**. O ID repetido
+4. A interface mostra a fila e o andamento; ao concluir, o resultado deve mostrar **2 de 2 partidas encontradas**. O ID repetido
    conta uma vez. Use **Ver jogadores** para abrir as estatísticas.
 5. Acesse **Histórico** para encontrar as duas partidas salvas. A busca aceita
    um ID, como `MATCH-1001`, ou parte do confronto, como `FURIA`.
@@ -161,7 +161,8 @@ curl --fail -b /tmp/tournament-cookies.txt 'http://localhost:3000/api/ganhadores
 curl --fail -b /tmp/tournament-cookies.txt -H 'X-Requested-With: TournamentHub' -X POST http://localhost:3000/api/auth/logout
 ```
 
-O upload também pode ser feito pelo Swagger, em **POST /api/upload → Try it out**.
+O fluxo assíncrono pode ser usado pelo Swagger em **POST /api/consultas → Try it out**.
+O endpoint legado `POST /api/upload` continua síncrono para compatibilidade.
 
 ### Parar, voltar e atualizar
 
@@ -184,6 +185,67 @@ O volume `backend_mysql_data` guarda as partidas entre reinicializações.
 `docker compose down -v` também remove esse volume e **apaga o histórico**.
 Um clone em outra máquina não leva os dados desse volume; para levá-los, use
 o procedimento de backup e restauração ao final deste documento.
+
+## Consultas assíncronas com Celery e Redis
+
+O painel envia o CSV para `POST /api/consultas`, que valida o arquivo e grava sua
+entrada no MySQL antes de responder **202 Accepted**, com `id`, `status`, `total`
+e `processadas`. A resposta confirma o recebimento, não a conclusão.
+O upload do arquivo ainda precisa terminar antes dessa confirmação.
+
+O Redis transporta apenas o ID da consulta. Um worker Celery processa as partidas,
+atualiza o progresso no MySQL e salva a resposta completa. A interface consulta o
+andamento a cada 2,5 segundos; em falhas temporárias de rede, tenta novamente após
+5 segundos. É possível navegar pelo painel ou fechar o navegador sem interromper
+o trabalho. Ao entrar novamente, a consulta mais recente é recuperada e o seletor
+**Suas últimas consultas** permite abrir as últimas 20 consultas da própria conta.
+
+| Método e caminho | Uso |
+| --- | --- |
+| `POST /api/consultas` | Multipart `arquivo` e `criterio`; retorna 202 e cabeçalho `Location`. |
+| `GET /api/consultas?limit=20&offset=0` | Lista consultas da sessão, com paginação (máximo 100 por página). |
+| `GET /api/consultas/{id}` | Estado, critério, nome do arquivo e contadores. |
+| `GET /api/consultas/{id}/resultado` | Resposta final; retorna 409 enquanto não concluída. |
+
+Os estados são `pendente`, `processando`, `concluida` e `erro`. Consultas de outra
+conta retornam 404. As partidas do Histórico continuam compartilhadas, como antes.
+Uma consulta concluída pode conter falhas por ID; a regra de não gerar classificação
+e premiação quando alguma partida falha continua valendo.
+
+O Celery Beat procura até 100 consultas pendentes ou em processamento a cada
+30 segundos e republica seus IDs, recuperando inclusive envios feitos durante
+indisponibilidade do Redis. Execute apenas uma instância do Beat. Mensagens
+expiram após 60 segundos para limitar o acúmulo; o MySQL mantém a entrada durável.
+Um lock MySQL por consulta impede que mensagens duplicadas processem a mesma
+consulta simultaneamente. Uma tarefa concluída não é executada novamente.
+
+Interrupções do processo ou falhas técnicas permitem até três tentativas de
+processamento. Cada tentativa recomeça o CSV, reutilizando as partidas já salvas.
+O progresso pode voltar a zero nessa retomada. Cada tentativa tem limite de
+aproximadamente uma hora. A API oficial usa timeout de conexão de 5 segundos e de
+leitura de 30 segundos; falhas por partida aparecem no resultado, sem novas
+chamadas automáticas para aquele ID na mesma tentativa.
+
+Para iniciar ou atualizar a instalação:
+
+```bash
+docker compose up -d --build --wait --wait-timeout 180
+docker compose logs --tail=100 worker beat redis
+```
+
+O Redis usa AOF e volume `redis_data`, sem porta publicada na máquina. O MySQL
+continua sendo a fonte dos dados e permite recuperar tarefas mesmo se a fila for
+perdida. `docker compose down -v` remove ambos os volumes e seus dados.
+O CSV original e os resultados são mantidos no MySQL; ainda não há limpeza
+programada ou política automática de retenção.
+
+No desenvolvimento local, atualize as dependências com `pip install -r requirements.txt`
+e disponibilize Redis em `127.0.0.1:6379`, ou defina `CELERY_BROKER_URL` apontando
+para uma instância acessível. `npm run dev` inicia API, React, worker e Beat;
+MySQL, Redis e a API oficial devem estar disponíveis. Também existem os comandos
+`npm run dev:worker` e `npm run dev:beat` para execução em terminais separados.
+O Redis do Compose fica restrito à rede interna; para usar todos os serviços
+sem configurar uma instância local, prefira executar a aplicação inteira no Docker.
 
 ## 2. Fluxos e regras atuais
 
@@ -661,3 +723,13 @@ O trabalho é organizado em `feature/*` → `develop` → `release/*` → `maste
 Correções urgentes usam `hotfix/*`, com sincronização de volta para `develop`.
 Consulte [CONTRIBUTING.md](CONTRIBUTING.md) para configurar o clone, abrir PRs,
 preparar versões e publicar tags.
+
+Para validar a fila real, incluindo publicação, processamento, isolamento por conta,
+entrega duplicada e recuperação pelo Beat (até 50 segundos por consulta):
+
+```bash
+docker compose exec -T -e ASYNC_TEST_BASE_URL=http://frontend backend python -m unittest discover -s tests -p 'test_async_integration.py' -v
+```
+
+Esse teste cria duas contas temporárias e as remove ao terminar, junto de suas
+consultas. Usa um ID inexistente para não criar nem modificar partidas do histórico.

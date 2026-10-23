@@ -37,6 +37,51 @@ services:
       retries: 30
     restart: always
 
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: always
+
+  worker:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    command: ["celery", "-A", "src.celery_app:app", "worker", "--loglevel=info", "--concurrency=2"]
+    environment: &worker_environment
+      CELERY_BROKER_URL: redis://redis:6379/0
+      OFFICIAL_API_URL: http://official-api:8001
+      MYSQL_HOST: backend-db
+      MYSQL_PORT: 3306
+      MYSQL_DATABASE: ${BACKEND_MYSQL_DATABASE:-esports_backend}
+      MYSQL_USER: ${BACKEND_MYSQL_USER:-backend_user}
+      MYSQL_PASSWORD: ${BACKEND_MYSQL_PASSWORD:-backend_password}
+    depends_on:
+      backend:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: always
+
+  beat:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    command: ["celery", "-A", "src.celery_app:app", "beat", "--loglevel=info", "--schedule=/tmp/celerybeat-schedule"]
+    environment: *worker_environment
+    depends_on:
+      backend:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: always
+
   backend:
     build:
       context: .
@@ -44,6 +89,7 @@ services:
     container_name: tournament-backend
     environment:
       OFFICIAL_API_URL: http://official-api:8001
+      CELERY_BROKER_URL: redis://redis:6379/0
       AUTH_COOKIE_SECURE: ${AUTH_COOKIE_SECURE:-false}
       PUBLIC_PRIZE_CRITERION: ${PUBLIC_PRIZE_CRITERION:-minutos}
       CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
@@ -90,4 +136,5 @@ services:
     restart: always
 
 volumes:
+  redis_data:
   backend_mysql_data:

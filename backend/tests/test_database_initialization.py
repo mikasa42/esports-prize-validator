@@ -21,7 +21,7 @@ class DatabaseInitializationTests(unittest.TestCase):
         connection = connect.return_value
         cursor = connection.cursor.return_value.__enter__.return_value
         inicializar_banco()
-        self.assertEqual(cursor.execute.call_count, 8)
+        self.assertEqual(cursor.execute.call_count, 9)
         connection.commit.assert_called_once()
         connection.close.assert_called_once()
 

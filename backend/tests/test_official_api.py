@@ -73,12 +73,12 @@ class ComparisonTests(unittest.TestCase):
 class ClientTests(unittest.TestCase):
     @patch('src.simulator.official_api_client.requests.get')
     @patch.dict('os.environ', {'OFFICIAL_API_URL': 'http://official.test'})
-    def test_success_uses_one_request_without_timeout(self, get):
+    def test_success_uses_one_request_with_timeout(self, get):
         response = Mock(status_code=200)
         response.json.return_value = copy.deepcopy(OFFICIAL)
         get.return_value = response
         self.assertEqual(OfficialApiClient.consultar_partida('FN-1')['tentativas_realizadas'], 1)
-        get.assert_called_once_with('http://official.test/api/partidas/FN-1')
+        get.assert_called_once_with('http://official.test/api/partidas/FN-1', timeout=(5, 30))
 
     @patch('src.simulator.official_api_client.requests.get')
     def test_missing_match_is_not_retried(self, get):
