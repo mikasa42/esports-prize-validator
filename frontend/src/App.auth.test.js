@@ -9,6 +9,7 @@ let container;
 let root;
 beforeEach(() => {
   jest.resetAllMocks();
+  axios.get.mockResolvedValue({ data: { consultas: [] } });
   global.IS_REACT_ACT_ENVIRONMENT = true;
   container = document.createElement('div');
   document.body.appendChild(container);

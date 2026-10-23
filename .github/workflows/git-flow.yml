@@ -1,0 +1,30 @@
+name: Git Flow
+
+on:
+  pull_request:
+    branches: [master, develop]
+    types: [opened, synchronize, reopened, edited]
+
+permissions:
+  contents: read
+
+jobs:
+  validar-destino:
+    name: Validar destino do PR
+    runs-on: ubuntu-latest
+    steps:
+      - name: Conferir branches de origem e destino
+        env:
+          BASE_BRANCH: ${{ github.base_ref }}
+          HEAD_BRANCH: ${{ github.head_ref }}
+        shell: bash
+        run: |
+          case "$BASE_BRANCH:$HEAD_BRANCH" in
+            master:release/*|master:hotfix/*|develop:feature/*|develop:bugfix/*|develop:release/*|develop:hotfix/*|develop:master)
+              echo "Fluxo permitido: $HEAD_BRANCH -> $BASE_BRANCH"
+              ;;
+            *)
+              echo "::error::Fluxo inválido: $HEAD_BRANCH -> $BASE_BRANCH. Consulte CONTRIBUTING.md."
+              exit 1
+              ;;
+          esac

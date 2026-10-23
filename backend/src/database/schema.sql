@@ -71,3 +71,24 @@ CREATE TABLE IF NOT EXISTS tentativas_autenticacao (
     expira_em DATETIME NOT NULL,
     INDEX idx_tentativas_expiracao (expira_em)
 );
+
+
+-- Entrada durável para o processamento assíncrono e resultado por usuário.
+CREATE TABLE IF NOT EXISTS consultas (
+    id CHAR(36) CHARACTER SET ascii PRIMARY KEY,
+    usuario_id INT NOT NULL,
+    nome_arquivo VARCHAR(255) NOT NULL,
+    criterio VARCHAR(10) NOT NULL,
+    conteudo MEDIUMBLOB NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'pendente',
+    total INT NOT NULL,
+    processadas INT NOT NULL DEFAULT 0,
+    tentativas INT NOT NULL DEFAULT 0,
+    resultado LONGTEXT NULL,
+    erro VARCHAR(255) NULL,
+    criada_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    atualizada_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_consultas_usuario (usuario_id, criada_em),
+    INDEX idx_consultas_status (status),
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+);

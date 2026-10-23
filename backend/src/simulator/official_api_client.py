@@ -20,7 +20,7 @@ class OfficialApiClient:
         base = os.environ.get('OFFICIAL_API_URL', 'http://127.0.0.1:8001').rstrip('/')
         url = f'{base}/api/partidas/{quote(str(match_id_externo), safe="")}'
         try:
-            response = requests.get(url)
+            response = requests.get(url, timeout=(5, 30))
             if response.status_code == 404:
                 raise PartidaNaoEncontrada('Partida não encontrada no banco oficial.')
             response.raise_for_status()

@@ -70,7 +70,7 @@ docker compose exec -e AUTH_TEST_BASE_URL=http://frontend backend python -m unit
 ## 1. Rodar em outra máquina com Docker
 
 Este é o caminho recomendado. Não é necessário instalar Python, Node.js ou
-MySQL na máquina: os quatro serviços são executados em containers.
+MySQL na máquina: os serviços são executados em containers, incluindo Redis, worker Celery e Beat.
 
 ### Pré-requisitos
 
@@ -131,7 +131,7 @@ que ainda não existem. O simulador lê o JSON que já acompanha o repositório.
 
 3. Selecione ou arraste o arquivo, escolha **Minutos jogados** ou **Abates**
    e clique em **Consultar partidas**.
-4. O resultado deve mostrar **2 de 2 partidas encontradas**. O ID repetido
+4. A interface mostra a fila e o andamento; ao concluir, o resultado deve mostrar **2 de 2 partidas encontradas**. O ID repetido
    conta uma vez. Use **Ver jogadores** para abrir as estatísticas.
 5. Acesse **Histórico** para encontrar as duas partidas salvas. A busca aceita
    um ID, como `MATCH-1001`, ou parte do confronto, como `FURIA`.
@@ -161,7 +161,8 @@ curl --fail -b /tmp/tournament-cookies.txt 'http://localhost:3000/api/ganhadores
 curl --fail -b /tmp/tournament-cookies.txt -H 'X-Requested-With: TournamentHub' -X POST http://localhost:3000/api/auth/logout
 ```
 
-O upload também pode ser feito pelo Swagger, em **POST /api/upload → Try it out**.
+O fluxo assíncrono pode ser usado pelo Swagger em **POST /api/consultas → Try it out**.
+O endpoint legado `POST /api/upload` continua síncrono para compatibilidade.
 
 ### Parar, voltar e atualizar
 
@@ -185,13 +186,75 @@ O volume `backend_mysql_data` guarda as partidas entre reinicializações.
 Um clone em outra máquina não leva os dados desse volume; para levá-los, use
 o procedimento de backup e restauração ao final deste documento.
 
+## Consultas assíncronas com Celery e Redis
+
+O painel envia o CSV para `POST /api/consultas`, que valida o arquivo e grava sua
+entrada no MySQL antes de responder **202 Accepted**, com `id`, `status`, `total`
+e `processadas`. A resposta confirma o recebimento, não a conclusão.
+O upload do arquivo ainda precisa terminar antes dessa confirmação.
+
+O Redis transporta apenas o ID da consulta. Um worker Celery processa as partidas,
+atualiza o progresso no MySQL e salva a resposta completa. A interface consulta o
+andamento a cada 2,5 segundos; em falhas temporárias de rede, tenta novamente após
+5 segundos. É possível navegar pelo painel ou fechar o navegador sem interromper
+o trabalho. Ao entrar novamente, a consulta mais recente é recuperada e o seletor
+**Suas últimas consultas** permite abrir as últimas 20 consultas da própria conta.
+
+| Método e caminho | Uso |
+| --- | --- |
+| `POST /api/consultas` | Multipart `arquivo` e `criterio`; retorna 202 e cabeçalho `Location`. |
+| `GET /api/consultas?limit=20&offset=0` | Lista consultas da sessão, com paginação (máximo 100 por página). |
+| `GET /api/consultas/{id}` | Estado, critério, nome do arquivo e contadores. |
+| `GET /api/consultas/{id}/resultado` | Resposta final; retorna 409 enquanto não concluída. |
+
+Os estados são `pendente`, `processando`, `concluida` e `erro`. Consultas de outra
+conta retornam 404. As partidas do Histórico continuam compartilhadas, como antes.
+Uma consulta concluída pode conter falhas por ID; a regra de não gerar classificação
+e premiação quando alguma partida falha continua valendo.
+
+O Celery Beat procura até 100 consultas pendentes ou em processamento a cada
+30 segundos e republica seus IDs, recuperando inclusive envios feitos durante
+indisponibilidade do Redis. Execute apenas uma instância do Beat. Mensagens
+expiram após 60 segundos para limitar o acúmulo; o MySQL mantém a entrada durável.
+Um lock MySQL por consulta impede que mensagens duplicadas processem a mesma
+consulta simultaneamente. Uma tarefa concluída não é executada novamente.
+
+Interrupções do processo ou falhas técnicas permitem até três tentativas de
+processamento. Cada tentativa recomeça o CSV, reutilizando as partidas já salvas.
+O progresso pode voltar a zero nessa retomada. Cada tentativa tem limite de
+aproximadamente uma hora. A API oficial usa timeout de conexão de 5 segundos e de
+leitura de 30 segundos; falhas por partida aparecem no resultado, sem novas
+chamadas automáticas para aquele ID na mesma tentativa.
+
+Para iniciar ou atualizar a instalação:
+
+```bash
+docker compose up -d --build --wait --wait-timeout 180
+docker compose logs --tail=100 worker beat redis
+```
+
+O Redis usa AOF e volume `redis_data`, sem porta publicada na máquina. O MySQL
+continua sendo a fonte dos dados e permite recuperar tarefas mesmo se a fila for
+perdida. `docker compose down -v` remove ambos os volumes e seus dados.
+O CSV original e os resultados são mantidos no MySQL; ainda não há limpeza
+programada ou política automática de retenção.
+
+No desenvolvimento local, atualize as dependências com `pip install -r requirements.txt`
+e disponibilize Redis em `127.0.0.1:6379`, ou defina `CELERY_BROKER_URL` apontando
+para uma instância acessível. `npm run dev` inicia API, React, worker e Beat;
+MySQL, Redis e a API oficial devem estar disponíveis. Também existem os comandos
+`npm run dev:worker` e `npm run dev:beat` para execução em terminais separados.
+O Redis do Compose fica restrito à rede interna; para usar todos os serviços
+sem configurar uma instância local, prefira executar a aplicação inteira no Docker.
+
 ## 2. Fluxos e regras atuais
 
 ### Nova consulta
 
 O CSV deve ser UTF-8, ter no máximo 10 MiB e possuir a coluna `id_partida`
-ou `ID Partida`. O separador padrão é vírgula; cada linha precisa de um ID
-preenchido. As demais colunas não fornecem as estatísticas usadas no cálculo.
+ou `ID Partida`. São aceitos vírgula, ponto e vírgula ou tabulação como separadores;
+cada linha precisa de um ID preenchido. Colunas e linhas são preservadas na
+conferência CSV × API. Classificação e premiações usam exclusivamente os dados oficiais.
 Você pode misturar IDs de torneios e anos diferentes no mesmo arquivo.
 
 O backend normaliza os IDs: maiúsculas, espaços, caracteres invisíveis e
@@ -207,7 +270,8 @@ inclusive se esse ID falhar. As partidas distintas são resolvidas em sequência
 2. Se não existir, consulta a API oficial por HTTP.
 3. Valida os participantes, minutos, abates e resultado.
 4. Salva a resposta válida e as estatísticas em uma transação.
-5. Calcula a classificação e o rateio usando as partidas distintas do envio.
+5. Compara cada campo de cada linha do CSV com a resposta oficial disponível.
+6. Calcula a classificação e o rateio usando as partidas distintas do envio e os dados oficiais.
 
 Se alguns IDs falharem, as partidas encontradas continuam disponíveis e são
 salvas. Nesse envio, `classificacao` fica vazia e `premios` fica `null` até
@@ -215,6 +279,69 @@ que não haja falhas. O total solicitado conta IDs distintos, não linhas.
 
 A premiação da **Nova consulta** usa o conjunto daquele CSV, mesmo que misture
 torneios. Para ver a premiação isolada de um torneio anual, use **Ganhadores**.
+
+### Comparação CSV × API oficial
+
+Depois do upload, **Nova consulta** apresenta a tabela **CSV × API oficial**, com
+linha do CSV, ID, jogador, coluna original, valor enviado, valor oficial e status.
+É possível buscar e filtrar campos divergentes, inválidos, ausentes ou sem referência,
+com paginação de 20 campos. Cada linha repetida é mantida na conferência, mas não
+multiplica consultas, partidas ou premiações. Metadados são conferidos em todas
+as linhas, incluindo quando há rodadas diferentes para o mesmo ID.
+
+| Informação | Colunas reconhecidas (exemplos) |
+| --- | --- |
+| Partida | `id_partida`, `ID Partida`, `matchId`, `match_id_externo` |
+| Data | `Data`, `data_partida`, `matchDate` |
+| Rodada | `Rodada`, `round` |
+| Confronto | `Partida`, `confronto` |
+| Torneio | `torneio`, `tournamentId`, `id_torneio` |
+| Equipe | `time`, `equipe`, `team` |
+| Jogador | `jogador`, `nick`, `nickname`, `player` |
+| Equipe e jogador juntos | `time_nick`, `time / jogador` |
+| Minutos jogados | `Minutos`, `minutesPlayed`, `tempo jogado`, `tempo` |
+| Abates | `Kills`, `Kill`, `Abates` |
+| Mortes | `Deaths`, `Mortes` |
+| Assistências | `Assists`, `Assistências` |
+| Resultado individual | `Venceu?`, `resultado`, `win` |
+| Time vencedor | `winnerTeam`, `time vencedor`, `vencedor` |
+
+Cabeçalhos ignoram diferenças de caixa, acentos, espaços e separadores. O valor
+original enviado permanece visível. Para comparar estatísticas individuais, informe
+time e jogador (ou nickname único na partida). Identificação ausente ou ambígua
+impede atribuir a estatística; nenhum jogador é escolhido por aproximação.
+As colunas de identidade, se repetidas com nomes alternativos, precisam concordar.
+Não envie dois cabeçalhos para o ID da partida nem cabeçalhos vazios ou repetidos.
+
+Exemplo de arquivo completo:
+
+```csv
+id_partida,time,jogador,Minutos,Kills,Rodada,Data,torneio,Deaths,Assists,Venceu?
+MATCH-1001,FURIA,chelo,24,12,1,2026-10-01,tournament-55,15,5,Sim
+MATCH-1001,FURIA,FalleN,28,15,1,2026-10-01,tournament-55,11,10,Sim
+```
+
+Números devem ser inteiros não negativos; o tempo é medido em minutos. `30.0`
+e `30` são equivalentes. Em CSV separado por ponto e vírgula, `30,0` também é
+aceito como número. Resultado aceita `Sim`/`Não`, `Vitória`/`Derrota`, `true`/`false`
+ou `1`/`0`. Datas aceitam ISO ou `DD/MM/AAAA`. Se o CSV fornecer apenas a data,
+compara-se o dia, sem exigir horário; timestamps com fuso são comparados em UTC.
+
+Uma coluna sem mapeamento ou um campo ausente na resposta oficial é mostrado
+como **Não comparável**. Valores desconhecidos não são tratados como conferidos.
+CSV com apenas IDs continua aceito, com aviso de que não contém estatísticas para
+conferência. Falhas de consulta preservam os valores enviados como **Sem referência
+oficial**. Campos vazios e formatos inválidos são sinalizados separadamente.
+
+A referência usa a política existente de cache: respostas oficiais previamente
+salvas no MySQL são reutilizadas e identificadas na tela como **Resposta oficial
+salva**. Isso não representa nova consulta à API naquele envio. Divergências não
+alteram estatísticas oficiais, classificação nem premiação. Apenas os campos enviados
+são conferidos; não é exigido que o CSV contenha todo o elenco da partida.
+
+O upload retorna `comparacao_csv`, com `colunas`, `linhas`, `somente_ids` e `resumo`,
+além dos resultados anteriores. A conferência e o arquivo não são persistidos como
+auditoria. Para consultá-los novamente, envie o CSV outra vez.
 
 ### Histórico
 
@@ -589,3 +716,20 @@ Verificações do novo frontend:
 npm run test:public
 npm run build:public
 ```
+
+## Desenvolvimento com Git Flow
+
+O trabalho é organizado em `feature/*` → `develop` → `release/*` → `master`.
+Correções urgentes usam `hotfix/*`, com sincronização de volta para `develop`.
+Consulte [CONTRIBUTING.md](CONTRIBUTING.md) para configurar o clone, abrir PRs,
+preparar versões e publicar tags.
+
+Para validar a fila real, incluindo publicação, processamento, isolamento por conta,
+entrega duplicada e recuperação pelo Beat (até 50 segundos por consulta):
+
+```bash
+docker compose exec -T -e ASYNC_TEST_BASE_URL=http://frontend backend python -m unittest discover -s tests -p 'test_async_integration.py' -v
+```
+
+Esse teste cria duas contas temporárias e as remove ao terminar, junto de suas
+consultas. Usa um ID inexistente para não criar nem modificar partidas do histórico.

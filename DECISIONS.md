@@ -30,34 +30,37 @@ As imagens-base usam tags, não um conjunto de digests fixados no repositório.
 
 ```mermaid
 sequenceDiagram
-    participant U as Usuário
     participant F as Frontend
-    participant B as Backend
+    participant B as FastAPI
     participant D as MySQL
-    participant A as API oficial JSON
-    U->>F: CSV e critério
-    F->>B: POST /api/upload (multipart)
-    B->>B: Validar CSV, normalizar e agrupar IDs
-    loop Cada ID distinto, na ordem da primeira ocorrência
-        B->>D: Buscar resposta salva
-        alt Existe no banco
-            D-->>B: Resposta JSON
-        else Ainda não existe
-            B->>A: GET /api/partidas/{id}
-            A-->>B: Resultado ou erro
-            opt Resposta válida
-                B->>D: Salvar resposta e estatísticas em uma transação
-            end
-        end
+    participant R as Redis
+    participant W as Celery worker
+    F->>B: POST /api/consultas (CSV e critério)
+    B->>D: Validar e persistir entrada com usuário
+    B->>R: Publicar ID
+    B-->>F: 202 e ID da consulta
+    R->>W: ID da consulta
+    W->>D: Adquirir lock e atualizar estado
+    W->>W: Resolver partidas e calcular resultados
+    W->>D: Salvar progresso e resultado
+    loop A cada 2,5 segundos enquanto ativa
+        F->>B: GET /api/consultas/{id}
+        B->>D: Consultar estado da própria conta
+        B-->>F: Estado e progresso
     end
-    B->>B: Classificação e rateio, se não houver falhas
-    B-->>F: Partidas, falhas, total e premiações
-    F-->>U: Tabela paginada e resultados
+    F->>B: GET /api/consultas/{id}/resultado
+    B-->>F: Partidas, falhas, comparação e premiações
 ```
+
+O Beat republica tarefas ativas a cada 30 segundos. Locks de sessão MySQL
+impedem execução simultânea da mesma consulta. Até três tentativas recuperam
+falhas técnicas; entradas e resultados ficam no banco, independentemente do Redis.
+A configuração e os limites operacionais estão no README.
 
 ### Contrato do CSV
 
-O endpoint é **`POST /api/upload`**, com `arquivo` e `criterio` (`minutos` ou `kills`).
+O endpoint do painel é **`POST /api/consultas`** (202); o legado
+**`POST /api/upload`** continua síncrono, com `arquivo` e `criterio` (`minutos` ou `kills`).
 O caminho anterior `/api/consultar-csv` não permanece como alias.
 
 O arquivo precisa ser `.csv`, UTF-8, limitado a 10 MiB e conter `id_partida`
@@ -82,16 +85,12 @@ Se essa premissa mudar, a identidade e as chaves precisarão incluir esse contex
 
 ### Sequenciamento e consultas HTTP
 
-As partidas de um arquivo são resolvidas sequencialmente. Não há executor de
-consultas paralelas, fila ou retorno progressivo; o frontend recebe uma resposta
-ao final do processamento. Requisições HTTP independentes podem ser atendidas
-concorrentemente pelo servidor, mas isso não altera a ordem dentro de um CSV.
+As partidas de um arquivo são resolvidas sequencialmente pelo worker. Duas
+consultas podem executar em paralelo com a concorrência padrão do Compose.
+O frontend acompanha contadores; resultados ficam disponíveis ao concluir.
 
-O cliente faz uma única chamada HTTP por consulta à API oficial, sem timeout
-explícito, novas tentativas ou esperas programadas. Resposta 404 é tratada como
-partida ausente. Falhas HTTP/de rede são reportadas como indisponibilidade.
-Sem timeout explícito, uma consulta pode permanecer aguardando a API e atrasar
-as próximas partidas do arquivo.
+Cada busca na API oficial usa timeout de conexão de 5 segundos e leitura de
+30 segundos. Uma falha por ID é reportada no resultado, sem retry por ID.
 
 Agrupar nove linhas do mesmo ID significa uma resolução lógica daquele ID,
 com no máximo uma chamada HTTP, caso a partida ainda não esteja no banco.
@@ -157,8 +156,8 @@ retornam o JSON salvo sem atualizar a API, expirar o registro ou invalidar o cac
 Falhas e respostas rejeitadas não são persistidas. Uma atualização no JSON do
 simulador não modifica uma partida que já esteja no banco.
 
-O CSV original, o nome do arquivo, o critério escolhido e o evento de upload não
-são armazenados como um histórico de requisições. O volume `backend_mysql_data`
+A tabela `consultas` armazena CSV original, nome do arquivo, usuário, critério,
+contadores, tentativas, estado e resultado. Ainda não há limpeza automática. O volume `backend_mysql_data`
 preserva as tabelas entre recriações de containers. Clonar o Git em outra máquina
 não copia esse volume; o README descreve dump e restauração quando necessários.
 
@@ -286,8 +285,8 @@ premiação são compartilhados, com estilos responsivos e foco visível.
 
 Hooks separados cuidam de upload, histórico e ganhadores. As requisições usam
 `AbortController`; respostas canceladas não atualizam o estado. O formulário e
-os resultados da Nova consulta permanecem ao navegar entre abas, mas não após
-recarregar a página. A durabilidade das partidas depende do banco, não do estado React.
+os resultados da Nova consulta permanecem ao navegar entre abas. Após recarregar,
+o hook recupera do servidor as últimas consultas da conta e abre a mais recente.
 
 A paginação de 5, 10 ou 20 partidas é feita no frontend para o resultado de um
 upload e no backend para o Histórico. Os jogadores são abertos dentro da linha
@@ -311,11 +310,11 @@ que estatísticas do CSV sejam comparadas durante o upload.
 
 Ainda não são implementados:
 
-- Login, autorização ou isolamento do histórico por pessoa.
-- Histórico de eventos de upload, critérios escolhidos ou alterações de resultados.
+- Isolamento do histórico compartilhado de partidas por pessoa (consultas individuais já têm autorização).
+- Histórico de alterações das respostas oficiais já persistidas.
 - Expiração, atualização automática ou sincronização das respostas já salvas.
 - Migrações de schema e pool de conexões próprio.
-- Paralelismo dentro do arquivo, processamento em fila ou resultados progressivos.
+- Paralelismo dentro do arquivo e apresentação de resultados antes da conclusão.
 - Catálogo independente de torneios, calendário e confirmação de encerramento.
 - Cache de classificações anuais, conciliação de centavos ou pagamentos.
 
